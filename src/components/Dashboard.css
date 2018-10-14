@@ -1,0 +1,25 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+}
+
+.triggers {
+  display: flex;
+  justify-content: space-between;
+}
+
+.loopsContainer {
+  flex: 1 0 60%;
+  max-width: 640px;
+  margin-right: 20px;
+}
+
+@media (max-width: 450px) {
+  .triggers {
+    flex-wrap: wrap;
+  }
+
+  .loopsContainer {
+    margin-right: 0;
+  }
+}

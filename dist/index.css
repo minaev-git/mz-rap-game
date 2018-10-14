@@ -1,0 +1,379 @@
+.circle--ziIVg {
+  transform: rotateZ(-90deg);
+  transform-origin: 50%;
+}
+
+.barContainer--3lRfl {
+  width: 100%;
+  height: 100%;
+}
+
+.bar--2QdWn {
+  position: relative;
+  height: 100%;
+  background: currentColor;
+  transition: width 0.3s, opacity 0.1s;
+  opacity: 0;
+}
+
+.barContainer--3lRfl.active--3cioK .bar--2QdWn {
+  opacity: 1;
+  transition: width 0.3s;
+}
+
+.loop--2DJRX {
+  position: relative;
+  width: 23.5%;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  background: transparent;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.background--3SZdO {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: currentColor;
+  opacity: 0.6;
+  transition-duration: 0.2s;
+  transition-property: box-shadow, background-color, opacity;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.indicator--2PWg2 {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  color: darkslategrey;
+  background-color: currentColor;
+}
+
+.indicator--2PWg2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: inherit;
+  height: inherit;
+  border-radius: inherit;
+  background: radial-gradient(circle at 45% 45%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.5));
+}
+
+.name--2PFDj {
+  color: rgba(0, 0, 0, 0.7);
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.loading--3OSge {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.loading--3OSge .background--3SZdO {
+  opacity: 1;
+}
+
+.nextOn--A0q1J .indicator--2PWg2 {
+  animation: blinkOn--3icSU 1s steps(1) infinite;
+}
+
+.nextOff--3vO3o {
+  box-shadow: inset 0 0 0 3px;
+}
+
+.nextOff--3vO3o .name--2PFDj {
+  color: inherit;
+}
+
+.nextOff--3vO3o .indicator--2PWg2 {
+  animation: blinkOff--WxXvt 1s steps(1) infinite;
+}
+
+.active--2pwVi .background--3SZdO {
+  opacity: 1;
+}
+
+.active--2pwVi .indicator--2PWg2 {
+  color: greenyellow;
+  box-shadow: 0 0 9px;
+}
+
+@keyframes blinkOff--WxXvt {
+  0% {
+    color: greenyellow;
+    box-shadow: 0 0 9px;
+  }
+  50% {
+    color: darkslategrey;
+    box-shadow: 0 0 0;
+  }
+}
+
+@keyframes blinkOn--3icSU {
+  0% {
+    color: #f6f929;
+    box-shadow: 0 0 9px;
+  }
+  50% {
+    color: darkslategrey;
+    box-shadow: 0 0 0;
+  }
+}
+
+@media (max-width: 450px) {
+  .loop--2DJRX {
+    height: 90px;
+  }
+}
+
+.category--kKB6F {
+  padding: 0 0 10px;
+}
+
+.label--5tnx5 {
+  font-size: 1.4em;
+  margin: 0 0 10px 0;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.list--1wuFM {
+  display: flex;
+  justify-content: space-between;
+}
+
+.news--pQJ6h {
+  position: relative;
+  padding: 14px 0 15px;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #c7c7c7;
+  transition: color .2s;
+}
+
+.news--pQJ6h:hover {
+  color: #c70000;
+}
+
+.link--2bJcb {
+  color: #c70000;
+}
+
+.link--2bJcb:hover {
+  text-decoration: none;
+}
+
+.progress--31uJ0 {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  color: #c70000;
+}
+
+.newsContainer--2ZRnq {
+  background-color: #fff;
+  color: #333;
+  padding: 0 20px;
+  flex: 1 1 auto;
+}
+
+.player--B75zn {
+  display: flex;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.button--uYpn-,
+.share--3i9u0 {
+  border-radius: 1px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.button--uYpn-,
+.shareLabel--322f4 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 17px;
+  min-height: 40px;
+}
+
+.button--uYpn- {
+  background-color: #e8e8e8;
+  border: 0;
+  outline: 0;
+  user-select: none;
+}
+
+.button--uYpn-:hover:not(:disabled):not(.active--2PqyO) {
+  background-color: #bcbcbc;
+}
+
+.button--uYpn-:disabled,
+.shareDisabled--1U3KU .shareLabel--322f4 {
+  opacity: 0.5;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.button--uYpn- + .button--uYpn-,
+.button--uYpn- + .share--3i9u0 {
+  margin: 0 0 0 10px;
+}
+
+.active--2PqyO {
+  box-shadow: inset 3px 3px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.icon--fDLiq {
+  margin: 0 7px 0 0;
+}
+
+.active--2PqyO .icon--fDLiq {
+  animation: blink--3HMbw 1s steps(1) infinite;
+}
+
+.recButton--1eX8w {
+  color: #c70000;
+}
+
+.recButton--1eX8w.active--2PqyO {
+  color: #fff;
+  background-color: #c70000;
+}
+
+.playButton--2RIbq {
+  color: #00c700;
+}
+
+.playButton--2RIbq.active--2PqyO {
+  color: #fff;
+  background-color: #00c700;
+}
+
+.shareButton--3eXo2 {
+  display: none;
+}
+
+@keyframes blink--3HMbw {
+  0% {
+    opacity: 1;
+    text-shadow: 0 0 7px;
+  }
+  50% {
+    opacity: 0.3;
+    text-shadow: 0 0 0;
+  }
+}
+
+.share--3i9u0 {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  background-color: #ccc;
+}
+
+.shareLink--1PjFd {
+  flex: 1 1 auto;
+  border: 0;
+  outline: 0;
+  padding: 0 10px;
+  background-color: #fff;
+  font: inherit;
+}
+
+.shareDisabled--1U3KU .shareLink--1PjFd {
+  cursor: not-allowed;
+}
+
+@media (max-width: 450px) {
+  .button--uYpn- {
+    padding: 0;
+    flex: 1 0 auto;
+  }
+
+  .shareButton--3eXo2 {
+    display: flex;
+  }
+
+  .share--3i9u0 {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .playTitleAdd--3FFP9 {
+    display: none;
+  }
+}
+
+.dashboard--12uZ6 {
+  display: flex;
+  flex-direction: column;
+}
+
+.triggers--pD_vy {
+  display: flex;
+  justify-content: space-between;
+}
+
+.loopsContainer--qiYwQ {
+  flex: 1 0 60%;
+  max-width: 640px;
+  margin-right: 20px;
+}
+
+@media (max-width: 450px) {
+  .triggers--pD_vy {
+    flex-wrap: wrap;
+  }
+
+  .loopsContainer--qiYwQ {
+    margin-right: 0;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  background: #111;
+  color: #fff;
+  font: 10px Arial, sans-serif;
+}
+
+.rootContainer--1fTVW {
+  max-width: 1400px;
+  padding: 0 35px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .rootContainer--1fTVW {
+    width: 100%;
+    padding: 0 20px;
+  }
+}
+

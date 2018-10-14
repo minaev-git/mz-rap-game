@@ -1,0 +1,28 @@
+.news {
+  position: relative;
+  padding: 14px 0 15px;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #c7c7c7;
+  transition: color .2s;
+}
+
+.news:hover {
+  color: #c70000;
+}
+
+.link {
+  color: #c70000;
+}
+
+.link:hover {
+  text-decoration: none;
+}
+
+.progress {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  color: #c70000;
+}
