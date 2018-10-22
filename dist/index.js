@@ -113,7 +113,7 @@
 /******/
 /******/ 	var hotApplyOnUpdate = true;
 /******/ 	// eslint-disable-next-line no-unused-vars
-/******/ 	var hotCurrentHash = "7e385fcdbde9aad5605a";
+/******/ 	var hotCurrentHash = "65c18a27065e93704eb4";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule;
@@ -1097,6 +1097,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../consts */ "./src/consts.js");
 /* harmony import */ var _Dashboard_css__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Dashboard.css */ "./src/components/Dashboard.css");
 /* harmony import */ var _Dashboard_css__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_Dashboard_css__WEBPACK_IMPORTED_MODULE_8__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -1109,6 +1111,9 @@ __webpack_require__.r(__webpack_exports__);
 class DashboardComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
   constructor(props) {
     super(props);
+
+    _defineProperty(this, "percentUpdateTimer", void 0);
+
     this.percentUpdateTimer = null;
     this.state = {
       playbackPercent: 0
@@ -1142,15 +1147,17 @@ class DashboardComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"]
       id: id,
       title: name,
       color: color,
-      playbackPercent: playbackPercent,
-      onClick: this.onClick
+      playbackPercent: playbackPercent
     });
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.playback.timestamp !== this.props.playback.timestamp) {
       this.setPercent(0);
-      clearInterval(this.percentUpdateTimer);
+
+      if (this.percentUpdateTimer !== null) {
+        clearInterval(this.percentUpdateTimer);
+      }
 
       if (this.props.playback.timestamp !== null) {
         this.percentUpdateTimer = setInterval(() => {
@@ -1161,14 +1168,22 @@ class DashboardComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"]
   }
 
   componentWillUnmount() {
-    clearInterval(this.percentUpdateTimer);
+    if (this.percentUpdateTimer !== null) {
+      clearInterval(this.percentUpdateTimer);
+    }
   }
 
   setPercent(percent) {
-    const playbackPercent = percent !== undefined ? percent : Math.min((Date.now() - this.props.playback.timestamp) / 1000 / _consts__WEBPACK_IMPORTED_MODULE_7__["LOOP_DURATION_SEC"], 1);
-    this.setState({
-      playbackPercent
-    });
+    if (percent !== undefined) {
+      this.setState({
+        playbackPercent: percent
+      });
+    } else {
+      const playbackPercent = Math.min((Date.now() - (this.props.playback.timestamp !== null ? this.props.playback.timestamp : 0)) / 1000 / _consts__WEBPACK_IMPORTED_MODULE_7__["LOOP_DURATION_SEC"], 1);
+      this.setState({
+        playbackPercent
+      });
+    }
   }
 
 }
@@ -1214,15 +1229,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../consts */ "./src/consts.js");
 /* harmony import */ var _Loop_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Loop.css */ "./src/components/Loop/Loop.css");
 /* harmony import */ var _Loop_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_Loop_css__WEBPACK_IMPORTED_MODULE_4__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
 
 
 class Loop extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
-  constructor(props) {
-    super(props);
-    this.onClick = this.onClick.bind(this);
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "onClick", () => {
+      this.props.onClick(this.props.id);
+    });
   }
 
   render() {
@@ -1232,7 +1252,7 @@ class Loop extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
       playbackPercent
     } = this.props;
     return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_1__(_Loop_css__WEBPACK_IMPORTED_MODULE_4__["loop"], {
+      className: classnames__WEBPACK_IMPORTED_MODULE_1___default()(_Loop_css__WEBPACK_IMPORTED_MODULE_4__["loop"], {
         [_Loop_css__WEBPACK_IMPORTED_MODULE_4__["loading"]]: state === _consts__WEBPACK_IMPORTED_MODULE_3__["LoopState"].Loading,
         [_Loop_css__WEBPACK_IMPORTED_MODULE_4__["nextOn"]]: state === _consts__WEBPACK_IMPORTED_MODULE_3__["LoopState"].NextOn,
         [_Loop_css__WEBPACK_IMPORTED_MODULE_4__["active"]]: state === _consts__WEBPACK_IMPORTED_MODULE_3__["LoopState"].Active,
@@ -1250,10 +1270,6 @@ class Loop extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
     }), react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
       className: _Loop_css__WEBPACK_IMPORTED_MODULE_4__["name"]
     }, name));
-  }
-
-  onClick() {
-    this.props.onClick(this.props.id);
   }
 
 }
@@ -1291,6 +1307,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../consts */ "./src/consts.js");
 /* harmony import */ var _LoopCategory_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./LoopCategory.css */ "./src/components/LoopsCategory/LoopCategory.css");
 /* harmony import */ var _LoopCategory_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_LoopCategory_css__WEBPACK_IMPORTED_MODULE_5__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -1298,9 +1316,55 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class LoopCategoryComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
-  constructor(props) {
-    super(props);
-    this.onClick = this.onClick.bind(this);
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "onClick", loopId => {
+      const loop = this.props.loops.find(({
+        id
+      }) => id === loopId);
+
+      if (loop === undefined) {
+        return;
+      }
+
+      const groupId = loop.groupId;
+      const currentLoop = this.props.loops.find(loop => loop.groupId === groupId && (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active || loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOn)); // switch off current loop from the same group
+
+      let switchOffLoop = [];
+
+      if (currentLoop && currentLoop !== loop) {
+        let currentLoopNextState;
+
+        if (currentLoop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active) {
+          currentLoopNextState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOff;
+        } else {
+          currentLoopNextState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Off;
+        }
+
+        switchOffLoop.push({
+          id: currentLoop.id,
+          state: currentLoopNextState
+        });
+      }
+
+      let newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Off;
+
+      if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Off) {
+        newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOn;
+      } else if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOn) {
+        newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Off;
+      } else if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOff) {
+        newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active;
+      } else if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active) {
+        newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOff;
+      }
+
+      this.props.setLoopState([...switchOffLoop, {
+        id: loopId,
+        state: newState
+      }]);
+    });
   }
 
   render() {
@@ -1325,48 +1389,6 @@ class LoopCategoryComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Componen
       playbackPercent: playbackPercent,
       onClick: this.onClick
     }))));
-  }
-
-  onClick(loopId) {
-    const loop = this.props.loops.find(({
-      id
-    }) => id === loopId);
-    const groupId = loop.groupId;
-    const currentLoop = this.props.loops.find(loop => loop.groupId === groupId && (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active || loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOn)); // switch off current loop from the same group
-
-    let switchOffLoop = [];
-
-    if (currentLoop && currentLoop !== loop) {
-      let currentLoopNextState;
-
-      if (currentLoop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active) {
-        currentLoopNextState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOff;
-      } else {
-        currentLoopNextState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Off;
-      }
-
-      switchOffLoop.push({
-        id: currentLoop.id,
-        state: currentLoopNextState
-      });
-    }
-
-    let newState;
-
-    if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Off) {
-      newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOn;
-    } else if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOn) {
-      newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Off;
-    } else if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOff) {
-      newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active;
-    } else if (loop.state === _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].Active) {
-      newState = _consts__WEBPACK_IMPORTED_MODULE_4__["LoopState"].NextOff;
-    }
-
-    this.props.setLoopState([...switchOffLoop, {
-      id: loopId,
-      state: newState
-    }]);
   }
 
 }
@@ -1411,13 +1433,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Progress_ProgressBar__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Progress/ProgressBar */ "./src/components/Progress/ProgressBar.jsx");
 /* harmony import */ var _News_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./News.css */ "./src/components/News/News.css");
 /* harmony import */ var _News_css__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_News_css__WEBPACK_IMPORTED_MODULE_2__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
 class News extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
-  constructor(props) {
-    super(props);
-    this.onClick = this.onClick.bind(this);
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "onClick", event => {
+      const target = event.target;
+
+      if (!(target instanceof window.HTMLAnchorElement)) {
+        this.props.onClick(this.props.id);
+      }
+    });
   }
 
   render() {
@@ -1438,12 +1469,6 @@ class News extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
     }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Progress_ProgressBar__WEBPACK_IMPORTED_MODULE_1__["Progress"], {
       percent: progress
     })));
-  }
-
-  onClick(event) {
-    if (event.target.tagName !== "A") {
-      this.props.onClick(this.props.id);
-    }
   }
 
 }
@@ -1481,6 +1506,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ducks_record__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../ducks/record */ "./src/ducks/record.js");
 /* harmony import */ var _NewsContainer_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./NewsContainer.css */ "./src/components/News/NewsContainer.css");
 /* harmony import */ var _NewsContainer_css__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_NewsContainer_css__WEBPACK_IMPORTED_MODULE_6__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -1492,18 +1519,51 @@ __webpack_require__.r(__webpack_exports__);
 class NewsContainerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
   constructor(props) {
     super(props);
-    this.voices = [];
+
+    _defineProperty(this, "readTimeoutsQueue", void 0);
+
+    _defineProperty(this, "newsReader", void 0);
+
+    _defineProperty(this, "onClickNews", id => {
+      const {
+        news
+      } = this.props;
+      const selectedNews = news.find(news => news.id === id);
+
+      if (selectedNews) {
+        this.newsReader.read(selectedNews.text, selectedNews.id);
+
+        if (this.props.isRecording) {
+          const startTimestamp = this.props.startTimestamp !== null ? this.props.startTimestamp : 0;
+          this.props.addNewsToRecord({
+            id,
+            timestamp: Date.now() - startTimestamp
+          });
+        }
+      }
+    });
+
+    _defineProperty(this, "onProgress", (id, progress) => {
+      this.setState({
+        currentNews: {
+          id,
+          progress
+        }
+      });
+    });
+
+    _defineProperty(this, "onEnd", () => {
+      this.setState({
+        currentNews: null
+      });
+    });
+
     this.readTimeoutsQueue = [];
     this.state = {
       currentNews: null
     };
-    this.onClickNews = this.onClickNews.bind(this);
-    this.onProgress = this.onProgress.bind(this);
-    this.onEnd = this.onEnd.bind(this);
     this.newsReader = new _reader_Reader__WEBPACK_IMPORTED_MODULE_3__["Reader"]({
-      onReady: voices => {
-        this.voices = voices;
-      },
+      onReady: voices => undefined,
       onProgress: this.onProgress,
       onEnd: this.onEnd
     });
@@ -1562,39 +1622,6 @@ class NewsContainerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Compone
     }
   }
 
-  onClickNews(id) {
-    const {
-      news
-    } = this.props;
-    const selectedNews = news.find(news => news.id === id);
-
-    if (selectedNews) {
-      this.newsReader.read(selectedNews.text, selectedNews.id);
-
-      if (this.props.isRecording) {
-        this.props.addNewsToRecord({
-          id,
-          timestamp: Date.now() - this.props.startTimestamp
-        });
-      }
-    }
-  }
-
-  onProgress(id, progress) {
-    this.setState({
-      currentNews: {
-        id,
-        progress
-      }
-    });
-  }
-
-  onEnd() {
-    this.setState({
-      currentNews: null
-    });
-  }
-
 }
 
 const mapStateToProps = state => {
@@ -1649,6 +1676,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../consts */ "./src/consts.js");
 /* harmony import */ var _Player_css__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Player.css */ "./src/components/Player/Player.css");
 /* harmony import */ var _Player_css__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_Player_css__WEBPACK_IMPORTED_MODULE_8__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -1661,13 +1690,54 @@ __webpack_require__.r(__webpack_exports__);
 class PlayerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
   constructor(props) {
     super(props);
+
+    _defineProperty(this, "refLink", void 0);
+
+    _defineProperty(this, "onClickRecord", () => {
+      if (this.props.isRecording) {
+        this.props.setIsRecording(false);
+        this.setState({
+          shareLink: this.generateLink()
+        });
+      } else {
+        this.props.setIsRecording(true);
+      }
+    });
+
+    _defineProperty(this, "onClickPlay", () => {
+      this.props.stopAllLoops();
+
+      if (this.props.isPlayingRecord) {
+        this.props.setIsPlayingRecord(false);
+      } else {
+        this.props.setIsPlayingRecord(true);
+        this.setNextLoops(0);
+      }
+    });
+
+    _defineProperty(this, "onClickLink", () => {
+      const input = this.refLink.current;
+
+      if (input !== null) {
+        input.focus();
+        input.select();
+      }
+
+      try {
+        const successful = document.execCommand("copy");
+
+        if (!successful) {
+          throw new Error("");
+        }
+      } catch (err) {
+        console.error("Не скопировалось :(");
+      }
+    });
+
     this.state = {
       shareLink: this.generateLink()
     };
     this.refLink = react__WEBPACK_IMPORTED_MODULE_0__["createRef"]();
-    this.onClickRecord = this.onClickRecord.bind(this);
-    this.onClickPlay = this.onClickPlay.bind(this);
-    this.onClickLink = this.onClickLink.bind(this);
   }
 
   shouldComponentUpdate(prevProps) {
@@ -1685,7 +1755,7 @@ class PlayerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
     return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
       className: _Player_css__WEBPACK_IMPORTED_MODULE_8__["player"]
     }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_2__(_Player_css__WEBPACK_IMPORTED_MODULE_8__["button"], _Player_css__WEBPACK_IMPORTED_MODULE_8__["recButton"], {
+      className: classnames__WEBPACK_IMPORTED_MODULE_2___default()(_Player_css__WEBPACK_IMPORTED_MODULE_8__["button"], _Player_css__WEBPACK_IMPORTED_MODULE_8__["recButton"], {
         [_Player_css__WEBPACK_IMPORTED_MODULE_8__["active"]]: isRecording
       }),
       disabled: isPlayingRecord || !allLoaded,
@@ -1693,7 +1763,7 @@ class PlayerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
     }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", {
       className: _Player_css__WEBPACK_IMPORTED_MODULE_8__["icon"]
     }, "\u25CF"), "Rec"), react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_2__(_Player_css__WEBPACK_IMPORTED_MODULE_8__["button"], _Player_css__WEBPACK_IMPORTED_MODULE_8__["playButton"], {
+      className: classnames__WEBPACK_IMPORTED_MODULE_2___default()(_Player_css__WEBPACK_IMPORTED_MODULE_8__["button"], _Player_css__WEBPACK_IMPORTED_MODULE_8__["playButton"], {
         [_Player_css__WEBPACK_IMPORTED_MODULE_8__["active"]]: isPlayingRecord
       }),
       disabled: !hasRecord,
@@ -1703,13 +1773,13 @@ class PlayerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
     }, "\u25B6"), "\u0418\u0433\u0440\u0430\u0442\u044C", react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", {
       className: _Player_css__WEBPACK_IMPORTED_MODULE_8__["playTitleAdd"]
     }, "\xA0\u0437\u0430\u043F\u0438\u0441\u044C")), react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_2__(_Player_css__WEBPACK_IMPORTED_MODULE_8__["button"], _Player_css__WEBPACK_IMPORTED_MODULE_8__["shareButton"]),
+      className: classnames__WEBPACK_IMPORTED_MODULE_2___default()(_Player_css__WEBPACK_IMPORTED_MODULE_8__["button"], _Player_css__WEBPACK_IMPORTED_MODULE_8__["shareButton"]),
       disabled: !hasRecord,
       onClick: this.onClickLink
     }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", {
       className: _Player_css__WEBPACK_IMPORTED_MODULE_8__["icon"]
     }, "\u21EB"), "\u041F\u043E\u0434\u0435\u043B\u0438\u0442\u044C\u0441\u044F"), react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("label", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_2__(_Player_css__WEBPACK_IMPORTED_MODULE_8__["share"], {
+      className: classnames__WEBPACK_IMPORTED_MODULE_2___default()(_Player_css__WEBPACK_IMPORTED_MODULE_8__["share"], {
         [_Player_css__WEBPACK_IMPORTED_MODULE_8__["shareDisabled"]]: !hasRecord
       }),
       onClick: this.onClickLink,
@@ -1744,43 +1814,6 @@ class PlayerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
       if (prevProps.playback.cursor !== playback.cursor && playback.cursor !== null) {
         this.setNextLoops(playback.cursor + 1);
       }
-    }
-  }
-
-  onClickRecord() {
-    if (this.props.isRecording) {
-      this.props.setIsRecording(null);
-      this.setState({
-        shareLink: this.generateLink()
-      });
-    } else {
-      this.props.setIsRecording(Date.now());
-    }
-  }
-
-  onClickPlay() {
-    this.props.stopAllLoops();
-
-    if (this.props.isPlayingRecord) {
-      this.props.setIsPlayingRecord(false);
-    } else {
-      this.props.setIsPlayingRecord(true);
-      this.setNextLoops(0);
-    }
-  }
-
-  onClickLink() {
-    this.refLink.current.focus();
-    this.refLink.current.select();
-
-    try {
-      const successful = document.execCommand("copy");
-
-      if (!successful) {
-        throw new Error("");
-      }
-    } catch (err) {
-      console.error("Не скопировалось :(");
     }
   }
 
@@ -2037,23 +2070,20 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class Progress extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
-  render() {
-    const {
-      percent
-    } = this.props;
-    return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_1__(_Progress_css__WEBPACK_IMPORTED_MODULE_2__["barContainer"], {
-        [_Progress_css__WEBPACK_IMPORTED_MODULE_2__["active"]]: percent > 0 && percent < 0.9
-      })
-    }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
-      className: _Progress_css__WEBPACK_IMPORTED_MODULE_2__["bar"],
-      style: {
-        width: `${percent * 100}%`
-      }
-    }));
-  }
-
+function Progress(props) {
+  const {
+    percent
+  } = props;
+  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
+    className: classnames__WEBPACK_IMPORTED_MODULE_1___default()(_Progress_css__WEBPACK_IMPORTED_MODULE_2__["barContainer"], {
+      [_Progress_css__WEBPACK_IMPORTED_MODULE_2__["active"]]: percent > 0 && percent < 0.9
+    })
+  }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", {
+    className: _Progress_css__WEBPACK_IMPORTED_MODULE_2__["bar"],
+    style: {
+      width: `${percent * 100}%`
+    }
+  }));
 }
 
 /***/ }),
@@ -2074,40 +2104,37 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Progress_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_Progress_css__WEBPACK_IMPORTED_MODULE_1__);
 
 
-class Progress extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
-  render() {
-    const {
-      radius,
-      stroke,
-      percent
-    } = this.props;
-    const normalizedRadius = radius - stroke / 2;
-    const circumference = 2 * Math.PI * normalizedRadius;
-    const offset = circumference * (1 - percent);
-    return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", {
-      width: radius * 2,
-      height: radius * 2
-    }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("circle", {
-      stroke: "#000000",
-      strokeWidth: stroke,
-      fill: "transparent",
-      r: radius - stroke / 2,
-      cx: radius,
-      cy: radius,
-      opacity: 0.3
-    }), react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("circle", {
-      className: _Progress_css__WEBPACK_IMPORTED_MODULE_1__["circle"],
-      stroke: "#ffffff",
-      strokeWidth: stroke,
-      strokeDasharray: `${circumference} ${circumference}`,
-      strokeDashoffset: offset,
-      fill: "transparent",
-      r: radius - stroke / 2,
-      cx: radius,
-      cy: radius
-    }));
-  }
-
+function Progress(props) {
+  const {
+    radius,
+    stroke,
+    percent
+  } = props;
+  const normalizedRadius = radius - stroke / 2;
+  const circumference = 2 * Math.PI * normalizedRadius;
+  const offset = circumference * (1 - percent);
+  return react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("svg", {
+    width: radius * 2,
+    height: radius * 2
+  }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("circle", {
+    stroke: "#000000",
+    strokeWidth: stroke,
+    fill: "transparent",
+    r: radius - stroke / 2,
+    cx: radius,
+    cy: radius,
+    opacity: 0.3
+  }), react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("circle", {
+    className: _Progress_css__WEBPACK_IMPORTED_MODULE_1__["circle"],
+    stroke: "#ffffff",
+    strokeWidth: stroke,
+    strokeDasharray: `${circumference} ${circumference}`,
+    strokeDashoffset: offset,
+    fill: "transparent",
+    r: radius - stroke / 2,
+    cx: radius,
+    cy: radius
+  }));
 }
 
 /***/ }),
@@ -2132,6 +2159,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ducks_record__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../ducks/record */ "./src/ducks/record.js");
 /* harmony import */ var _ducks_playback__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../ducks/playback */ "./src/ducks/playback.js");
 /* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../consts */ "./src/consts.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -2144,6 +2173,21 @@ const scheduleAheadTimeSec = 0.01;
 class SoundManagerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Component"] {
   constructor(props) {
     super(props);
+
+    _defineProperty(this, "ctxCurrentTime", void 0);
+
+    _defineProperty(this, "isPlaying", void 0);
+
+    _defineProperty(this, "howls", void 0);
+
+    _defineProperty(this, "checkInterval", void 0);
+
+    _defineProperty(this, "checkLoopEnd", () => {
+      if (this.ctxCurrentTime + _consts__WEBPACK_IMPORTED_MODULE_6__["LOOP_DURATION_SEC"] < howler__WEBPACK_IMPORTED_MODULE_2__["Howler"].ctx.currentTime + scheduleAheadTimeSec) {
+        this.playNextLoops();
+      }
+    });
+
     this.ctxCurrentTime = null;
     this.isPlaying = false;
     this.howls = {};
@@ -2160,8 +2204,6 @@ class SoundManagerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Componen
         }
       });
     }
-
-    this.checkLoopEnd = this.checkLoopEnd.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
@@ -2204,7 +2246,7 @@ class SoundManagerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Componen
     }
 
     this.isPlaying = true;
-    this.ctxCurrentTime = Howler.ctx.currentTime;
+    this.ctxCurrentTime = howler__WEBPACK_IMPORTED_MODULE_2__["Howler"].ctx.currentTime;
     this.checkInterval = setInterval(this.checkLoopEnd, checkLoopEndTimeMs);
     this.playNextLoops();
   }
@@ -2256,7 +2298,7 @@ class SoundManagerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Componen
       }
     }
 
-    this.ctxCurrentTime = Howler.ctx.currentTime;
+    this.ctxCurrentTime = howler__WEBPACK_IMPORTED_MODULE_2__["Howler"].ctx.currentTime;
 
     for (const loopId of loopsForPlay) {
       this.howls[loopId].play();
@@ -2279,12 +2321,6 @@ class SoundManagerComponent extends react__WEBPACK_IMPORTED_MODULE_0__["Componen
       } else {
         this.props.setCursor(newCursor);
       }
-    }
-  }
-
-  checkLoopEnd() {
-    if (this.ctxCurrentTime + _consts__WEBPACK_IMPORTED_MODULE_6__["LOOP_DURATION_SEC"] < Howler.ctx.currentTime + scheduleAheadTimeSec) {
-      this.playNextLoops();
     }
   }
 
@@ -2352,6 +2388,54 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loops", function() { return loops; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "news", function() { return news; });
 /* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./consts */ "./src/consts.js");
+/* harmony import */ var _assets_beat_01_mp3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../assets/beat_01.mp3 */ "./assets/beat_01.mp3");
+/* harmony import */ var _assets_beat_01_mp3__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_assets_beat_01_mp3__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _assets_beat_02_mp3__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../assets/beat_02.mp3 */ "./assets/beat_02.mp3");
+/* harmony import */ var _assets_beat_02_mp3__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_assets_beat_02_mp3__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _assets_beat_03_mp3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../assets/beat_03.mp3 */ "./assets/beat_03.mp3");
+/* harmony import */ var _assets_beat_03_mp3__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_assets_beat_03_mp3__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _assets_beat_04_mp3__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../assets/beat_04.mp3 */ "./assets/beat_04.mp3");
+/* harmony import */ var _assets_beat_04_mp3__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_assets_beat_04_mp3__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _assets_hihats_01_mp3__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../assets/hihats_01.mp3 */ "./assets/hihats_01.mp3");
+/* harmony import */ var _assets_hihats_01_mp3__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_assets_hihats_01_mp3__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _assets_hihats_02_mp3__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../assets/hihats_02.mp3 */ "./assets/hihats_02.mp3");
+/* harmony import */ var _assets_hihats_02_mp3__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_assets_hihats_02_mp3__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _assets_hihats_03_mp3__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../assets/hihats_03.mp3 */ "./assets/hihats_03.mp3");
+/* harmony import */ var _assets_hihats_03_mp3__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_assets_hihats_03_mp3__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _assets_hihats_04_mp3__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../assets/hihats_04.mp3 */ "./assets/hihats_04.mp3");
+/* harmony import */ var _assets_hihats_04_mp3__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_assets_hihats_04_mp3__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _assets_bass_01_mp3__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../assets/bass_01.mp3 */ "./assets/bass_01.mp3");
+/* harmony import */ var _assets_bass_01_mp3__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_assets_bass_01_mp3__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _assets_bass_02_mp3__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../assets/bass_02.mp3 */ "./assets/bass_02.mp3");
+/* harmony import */ var _assets_bass_02_mp3__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_assets_bass_02_mp3__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var _assets_bass_03_mp3__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../assets/bass_03.mp3 */ "./assets/bass_03.mp3");
+/* harmony import */ var _assets_bass_03_mp3__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_assets_bass_03_mp3__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _assets_bass_04_mp3__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../assets/bass_04.mp3 */ "./assets/bass_04.mp3");
+/* harmony import */ var _assets_bass_04_mp3__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_assets_bass_04_mp3__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _assets_tune_01_mp3__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../assets/tune_01.mp3 */ "./assets/tune_01.mp3");
+/* harmony import */ var _assets_tune_01_mp3__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_assets_tune_01_mp3__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var _assets_tune_02_mp3__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../assets/tune_02.mp3 */ "./assets/tune_02.mp3");
+/* harmony import */ var _assets_tune_02_mp3__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_assets_tune_02_mp3__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var _assets_tune_03_mp3__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../assets/tune_03.mp3 */ "./assets/tune_03.mp3");
+/* harmony import */ var _assets_tune_03_mp3__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_assets_tune_03_mp3__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var _assets_tune_04_mp3__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../assets/tune_04.mp3 */ "./assets/tune_04.mp3");
+/* harmony import */ var _assets_tune_04_mp3__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_assets_tune_04_mp3__WEBPACK_IMPORTED_MODULE_16__);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const categories = [{
   id: "beats",
@@ -2374,97 +2458,97 @@ const loops = [{
   id: "bt1",
   categoryId: "beats",
   groupId: "beats",
-  src: __webpack_require__(/*! ../assets/beat_01.mp3 */ "./assets/beat_01.mp3"),
+  src: _assets_beat_01_mp3__WEBPACK_IMPORTED_MODULE_1___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "bt2",
   categoryId: "beats",
   groupId: "beats",
-  src: __webpack_require__(/*! ../assets/beat_02.mp3 */ "./assets/beat_02.mp3"),
+  src: _assets_beat_02_mp3__WEBPACK_IMPORTED_MODULE_2___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "bt3",
   categoryId: "beats",
   groupId: "beats",
-  src: __webpack_require__(/*! ../assets/beat_03.mp3 */ "./assets/beat_03.mp3"),
+  src: _assets_beat_03_mp3__WEBPACK_IMPORTED_MODULE_3___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "bt4",
   categoryId: "beats",
   groupId: "beats",
-  src: __webpack_require__(/*! ../assets/beat_04.mp3 */ "./assets/beat_04.mp3"),
+  src: _assets_beat_04_mp3__WEBPACK_IMPORTED_MODULE_4___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "h1",
   categoryId: "hihats",
   groupId: "hihats",
-  src: __webpack_require__(/*! ../assets/hihats_01.mp3 */ "./assets/hihats_01.mp3"),
+  src: _assets_hihats_01_mp3__WEBPACK_IMPORTED_MODULE_5___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "h2",
   categoryId: "hihats",
   groupId: "hihats",
-  src: __webpack_require__(/*! ../assets/hihats_02.mp3 */ "./assets/hihats_02.mp3"),
+  src: _assets_hihats_02_mp3__WEBPACK_IMPORTED_MODULE_6___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "h3",
   categoryId: "hihats",
   groupId: "hihats",
-  src: __webpack_require__(/*! ../assets/hihats_03.mp3 */ "./assets/hihats_03.mp3"),
+  src: _assets_hihats_03_mp3__WEBPACK_IMPORTED_MODULE_7___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "h4",
   categoryId: "hihats",
   groupId: "hihats",
-  src: __webpack_require__(/*! ../assets/hihats_04.mp3 */ "./assets/hihats_04.mp3"),
+  src: _assets_hihats_04_mp3__WEBPACK_IMPORTED_MODULE_8___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "b1",
   categoryId: "bass",
   groupId: "bass",
-  src: __webpack_require__(/*! ../assets/bass_01.mp3 */ "./assets/bass_01.mp3"),
+  src: _assets_bass_01_mp3__WEBPACK_IMPORTED_MODULE_9___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "b2",
   categoryId: "bass",
   groupId: "bass",
-  src: __webpack_require__(/*! ../assets/bass_02.mp3 */ "./assets/bass_02.mp3"),
+  src: _assets_bass_02_mp3__WEBPACK_IMPORTED_MODULE_10___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "b3",
   categoryId: "bass",
   groupId: "bass",
-  src: __webpack_require__(/*! ../assets/bass_03.mp3 */ "./assets/bass_03.mp3"),
+  src: _assets_bass_03_mp3__WEBPACK_IMPORTED_MODULE_11___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "b4",
   categoryId: "bass",
   groupId: "bass",
-  src: __webpack_require__(/*! ../assets/bass_04.mp3 */ "./assets/bass_04.mp3"),
+  src: _assets_bass_04_mp3__WEBPACK_IMPORTED_MODULE_12___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "t1",
   categoryId: "tune",
   groupId: "tune",
-  src: __webpack_require__(/*! ../assets/tune_01.mp3 */ "./assets/tune_01.mp3"),
+  src: _assets_tune_01_mp3__WEBPACK_IMPORTED_MODULE_13___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "t2",
   categoryId: "tune",
   groupId: "tune",
-  src: __webpack_require__(/*! ../assets/tune_02.mp3 */ "./assets/tune_02.mp3"),
+  src: _assets_tune_02_mp3__WEBPACK_IMPORTED_MODULE_14___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "t3",
   categoryId: "tune",
   groupId: "tune",
-  src: __webpack_require__(/*! ../assets/tune_03.mp3 */ "./assets/tune_03.mp3"),
+  src: _assets_tune_03_mp3__WEBPACK_IMPORTED_MODULE_15___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }, {
   id: "t4",
   categoryId: "tune",
   groupId: "tune",
-  src: __webpack_require__(/*! ../assets/tune_04.mp3 */ "./assets/tune_04.mp3"),
+  src: _assets_tune_04_mp3__WEBPACK_IMPORTED_MODULE_16___default.a,
   state: _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading
 }];
 const news = [// {
@@ -2586,12 +2670,12 @@ function selectState(rootState) {
 /*!****************************!*\
   !*** ./src/ducks/index.js ***!
   \****************************/
-/*! exports provided: reducers */
+/*! exports provided: combinedReducers */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reducers", function() { return reducers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "combinedReducers", function() { return combinedReducers; });
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
 /* harmony import */ var _categories__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./categories */ "./src/ducks/categories.js");
 /* harmony import */ var _loops__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./loops */ "./src/ducks/loops.js");
@@ -2604,13 +2688,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const reducers = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"])({
+const reducers = {
   categories: _categories__WEBPACK_IMPORTED_MODULE_1__["categoriesReducer"],
   loops: _loops__WEBPACK_IMPORTED_MODULE_2__["loopsReducer"],
   news: _news__WEBPACK_IMPORTED_MODULE_4__["newsReducer"],
   record: _record__WEBPACK_IMPORTED_MODULE_3__["recordReducer"],
   playback: _playback__WEBPACK_IMPORTED_MODULE_5__["playbackReducer"]
-});
+};
+const combinedReducers = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"])(reducers);
 
 /***/ }),
 
@@ -2663,12 +2748,13 @@ function loopsReducer(state = initialState, action) {
 
     case SET_LOOP_STATE:
       {
+        const payload = action.payload;
         return state.reduce((result, loop) => {
-          const newState = action.payload.find(({
+          const newState = payload.find(({
             id
           }) => loop.id === id);
 
-          if (newState) {
+          if (newState !== undefined) {
             loop.state = newState.state;
           }
 
@@ -2697,7 +2783,7 @@ function selectLoopsByCategory(rootState, categoryId) {
 }
 function selectAllLoaded(rootState) {
   const loops = selectState(rootState);
-  return loops.length && loops.every(loop => loop.state !== _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading);
+  return Boolean(loops.length) && loops.every(loop => loop.state !== _consts__WEBPACK_IMPORTED_MODULE_0__["LoopState"].Loading);
 }
 
 /***/ }),
@@ -2788,14 +2874,13 @@ function selectState(rootState) {
 /*!*****************************!*\
   !*** ./src/ducks/record.js ***!
   \*****************************/
-/*! exports provided: SET_IS_RECORDING, SET_IS_PLAYING_RECORD, SET_START_TIMESTAMP, ADD_LOOPS, ADD_NEWS, setIsRecording, setIsPlayingRecord, addLoops, addNews, recordReducer, selectState, selectIsRecording, selectIsPlayingRecord, selectStartTimestamp, selectRecordLoops, selectRecordNews */
+/*! exports provided: SET_IS_RECORDING, SET_IS_PLAYING_RECORD, ADD_LOOPS, ADD_NEWS, setIsRecording, setIsPlayingRecord, addLoops, addNews, recordReducer, selectState, selectIsRecording, selectIsPlayingRecord, selectStartTimestamp, selectRecordLoops, selectRecordNews */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SET_IS_RECORDING", function() { return SET_IS_RECORDING; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SET_IS_PLAYING_RECORD", function() { return SET_IS_PLAYING_RECORD; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SET_START_TIMESTAMP", function() { return SET_START_TIMESTAMP; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ADD_LOOPS", function() { return ADD_LOOPS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ADD_NEWS", function() { return ADD_NEWS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setIsRecording", function() { return setIsRecording; });
@@ -2815,7 +2900,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 const SET_IS_RECORDING = "record/SET_IS_RECORDING";
 const SET_IS_PLAYING_RECORD = "record/SET_IS_PLAYING_RECORD";
-const SET_START_TIMESTAMP = "record/SET_START_TIMESTAMP";
 const ADD_LOOPS = "record/ADD_LOOPS";
 const ADD_NEWS = "record/ADD_NEWS";
 const initialState = {
@@ -2877,24 +2961,12 @@ function recordReducer(state = initialState, action) {
         });
       }
 
-    case SET_START_TIMESTAMP:
-      {
-        return _objectSpread({}, state, {
-          startTimestamp: action.payload
-        });
-      }
-
     case ADD_LOOPS:
       {
-        const newState = _objectSpread({}, state, {
+        return _objectSpread({}, state, {
+          startTimestamp: state.startTimestamp === null ? Date.now() : state.startTimestamp,
           loops: [...state.loops, action.payload]
         });
-
-        if (state.startTimestamp === null) {
-          newState.startTimestamp = Date.now();
-        }
-
-        return newState;
       }
 
     case ADD_NEWS:
@@ -2979,7 +3051,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const store = Object(redux__WEBPACK_IMPORTED_MODULE_3__["createStore"])(_ducks__WEBPACK_IMPORTED_MODULE_4__["reducers"]); // valid ids are required to be able to create a share link
+const store = Object(redux__WEBPACK_IMPORTED_MODULE_3__["createStore"])(_ducks__WEBPACK_IMPORTED_MODULE_4__["combinedReducers"]); // valid ids are required to be able to create a share link
 
 _data__WEBPACK_IMPORTED_MODULE_9__["loops"].forEach(({
   id
@@ -2991,22 +3063,26 @@ store.dispatch(Object(_ducks_news__WEBPACK_IMPORTED_MODULE_7__["setNews"])(_data
 
 const recordHash = Object(_components_Player_utils__WEBPACK_IMPORTED_MODULE_10__["getRecordFromUrl"])();
 
-if (recordHash) {
+if (recordHash !== null) {
   const playlist = Object(_components_Player_utils__WEBPACK_IMPORTED_MODULE_10__["generatePlayList"])(recordHash);
 
   if (playlist) {
     playlist.loops.forEach(recordedLoops => {
       store.dispatch(Object(_ducks_record__WEBPACK_IMPORTED_MODULE_11__["addLoops"])(recordedLoops));
     });
-    playlist.news.forEach(recorderNews => {
-      store.dispatch(Object(_ducks_record__WEBPACK_IMPORTED_MODULE_11__["addNews"])(recorderNews));
+    playlist.news.forEach(recordedNews => {
+      store.dispatch(Object(_ducks_record__WEBPACK_IMPORTED_MODULE_11__["addNews"])(recordedNews));
     });
   }
 }
 
 const rootNode = document.createElement("div");
-rootNode.className = _index_css__WEBPACK_IMPORTED_MODULE_12__["rootContainer"];
-document.body.appendChild(rootNode);
+rootNode.className = _index_css__WEBPACK_IMPORTED_MODULE_12__["rootCOntainer"];
+const body = document.body;
+
+if (body !== null) {
+  body.appendChild(rootNode);
+}
 
 const renderApp = Component => {
   Object(react_dom__WEBPACK_IMPORTED_MODULE_1__["render"])(react__WEBPACK_IMPORTED_MODULE_0__["createElement"](react_redux__WEBPACK_IMPORTED_MODULE_2__["Provider"], {
@@ -3016,7 +3092,7 @@ const renderApp = Component => {
 
 renderApp(_App__WEBPACK_IMPORTED_MODULE_8__["App"]);
 
-if (true) {
+if (module.hot !== undefined) {
   module.hot.accept(/*! ./App */ "./src/App.jsx", function(__WEBPACK_OUTDATED_DEPENDENCIES__) { /* harmony import */ _App__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./App */ "./src/App.jsx");
 (() => {
     renderApp(_App__WEBPACK_IMPORTED_MODULE_8__["App"]);
@@ -3036,6 +3112,8 @@ if (true) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Reader", function() { return Reader; });
 /* harmony import */ var _components_Player_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../components/Player/utils */ "./src/components/Player/utils.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 class Reader {
   constructor({
@@ -3043,6 +3121,18 @@ class Reader {
     onProgress,
     onEnd
   }) {
+    _defineProperty(this, "isReady", void 0);
+
+    _defineProperty(this, "newsProgressInterval", void 0);
+
+    _defineProperty(this, "onProgress", void 0);
+
+    _defineProperty(this, "onEnd", void 0);
+
+    _defineProperty(this, "synth", void 0);
+
+    _defineProperty(this, "voices", void 0);
+
     this.isReady = false;
     this.newsProgressInterval = null;
     this.onProgress = onProgress;
@@ -3074,7 +3164,7 @@ class Reader {
     const voiceName = this.voices[Math.round(Object(_components_Player_utils__WEBPACK_IMPORTED_MODULE_0__["randomInRange"])(0, this.voices.length - 1))].name;
     const pitch = Object(_components_Player_utils__WEBPACK_IMPORTED_MODULE_0__["randomInRange"])(0.7, 1.1);
     const rate = Object(_components_Player_utils__WEBPACK_IMPORTED_MODULE_0__["randomInRange"])(0.9, 1);
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new window.SpeechSynthesisUtterance(text);
     utterance.voice = this.voices.find(voice => voice.name === voiceName) || this.voices[0];
     utterance.pitch = pitch;
     utterance.rate = rate;
@@ -3101,7 +3191,10 @@ class Reader {
   }
 
   endProgress() {
-    clearInterval(this.newsProgressInterval);
+    if (this.newsProgressInterval !== null) {
+      clearInterval(this.newsProgressInterval);
+    }
+
     this.onEnd();
   }
 

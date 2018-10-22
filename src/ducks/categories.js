@@ -1,15 +1,27 @@
+import type { Category } from "../types";
+import type { RootState } from "./index";
+
 export const SET_CATEGORIES = "categories/SET_CATEGORIES";
 
-const initialState = [];
+export type CategoriesState = Category[];
 
-export function setCategories(categories) {
+const initialState: CategoriesState = [];
+
+type SetCategoriesAction = {|
+    +type: typeof SET_CATEGORIES,
+    +payload: Category[],
+|};
+
+export function setCategories(categories: CategoriesState): SetCategoriesAction {
     return {
         type: SET_CATEGORIES,
         payload: categories,
     }
 }
 
-export function categoriesReducer(state = initialState, action) {
+type CategoriesAction = SetCategoriesAction;
+
+export function categoriesReducer(state: CategoriesState = initialState, action: CategoriesAction): CategoriesState {
     switch (action.type) {
         case SET_CATEGORIES: {
             const newState = [...state];
@@ -25,6 +37,6 @@ export function categoriesReducer(state = initialState, action) {
     }
 }
 
-export function selectState(rootState) {
+export function selectState(rootState: RootState): CategoriesState {
     return rootState.categories;
 }

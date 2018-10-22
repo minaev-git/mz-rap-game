@@ -10,27 +10,44 @@ import {
     selectRecordNews,
     selectStartTimestamp,
 } from "../../ducks/record";
+import type { RootState } from "../../ducks";
 
 import * as styles from "./NewsContainer.css";
 
-class NewsContainerComponent extends React.Component {
+type NewsContainerComponentStateProps = {|
+    +news: $Call<typeof selectNews, RootState>,
+    +isRecording: $Call<typeof selectIsRecording, RootState>,
+    +isPlayingRecord: $Call<typeof selectIsPlayingRecord, RootState>,
+    +startTimestamp: $Call<typeof selectStartTimestamp, RootState>,
+    +recordNews: $Call<typeof selectRecordNews, RootState>,
+|}
+
+type NewsContainerComponentDispatchProps = {|
+    +addNewsToRecord: typeof addNewsToRecord,
+|}
+
+type NewsContainerComponentProps = NewsContainerComponentStateProps & NewsContainerComponentDispatchProps;
+
+type NewsContainerComponentState = {|
+    +currentNews: {
+        id: string,
+        progress: number,
+    } | null
+|}
+
+class NewsContainerComponent extends React.Component<NewsContainerComponentProps, NewsContainerComponentState> {
+    readTimeoutsQueue: TimeoutID[];
+    newsReader: Reader;
     constructor(props) {
         super(props);
 
-        this.voices = [];
         this.readTimeoutsQueue = [];
         this.state = {
             currentNews: null,
         };
 
-        this.onClickNews = this.onClickNews.bind(this);
-        this.onProgress = this.onProgress.bind(this);
-        this.onEnd = this.onEnd.bind(this);
-
         this.newsReader = new Reader({
-            onReady: (voices) => {
-                this.voices = voices;
-            },
+            onReady: (voices) => undefined,
             onProgress: this.onProgress,
             onEnd: this.onEnd,
         });
@@ -77,34 +94,37 @@ class NewsContainerComponent extends React.Component {
         }
     }
 
-    onClickNews(id) {
+    onClickNews = (id) => {
         const { news } = this.props;
         const selectedNews = news.find(news => news.id === id);
         if (selectedNews) {
             this.newsReader.read(selectedNews.text, selectedNews.id);
             if (this.props.isRecording) {
-                this.props.addNewsToRecord({ id, timestamp: Date.now() - this.props.startTimestamp });
+                const startTimestamp = this.props.startTimestamp !== null ?
+                    this.props.startTimestamp :
+                    0;
+                this.props.addNewsToRecord({ id, timestamp: Date.now() - startTimestamp });
             }
         }
-    }
+    };
 
-    onProgress(id, progress) {
+    onProgress = (id, progress) => {
         this.setState({
             currentNews: {
                 id,
                 progress,
             },
         });
-    }
+    };
 
-    onEnd() {
+    onEnd = () => {
         this.setState({
             currentNews: null,
         });
-    }
+    };
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState): NewsContainerComponentStateProps => {
     return {
         news: selectNews(state),
         isRecording: selectIsRecording(state),
@@ -114,7 +134,7 @@ const mapStateToProps = state => {
     };
 };
 
-const mapDispatchToProps = {
+const mapDispatchToProps: NewsContainerComponentDispatchProps = {
     addNewsToRecord,
 };
 

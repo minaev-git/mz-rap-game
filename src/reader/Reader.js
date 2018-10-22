@@ -1,7 +1,28 @@
 import { randomInRange } from "../components/Player/utils";
 
+type VoiceMap = {|
+    +name: string,
+    +lang: string,
+|};
+
+type OnReady = (voiceMap: VoiceMap[]) => void;
+type OnProgress = (id: string, progress: number) => void;
+type OnEnd = () => void;
+
+type ReaderProps = {|
+    +onProgress: OnProgress,
+    +onEnd: OnEnd,
+    +onReady: OnReady,
+|}
+
 export class Reader {
-    constructor({ onReady, onProgress, onEnd }) {
+    isReady: boolean;
+    newsProgressInterval: IntervalID | null;
+    onProgress: OnProgress;
+    onEnd: OnEnd;
+    synth: SpeechSynthesis;
+    voices: SpeechSynthesisVoice[];
+    constructor({ onReady, onProgress, onEnd }: ReaderProps) {
         this.isReady = false;
         this.newsProgressInterval = null;
         this.onProgress = onProgress;
@@ -23,7 +44,7 @@ export class Reader {
         }
     }
 
-    read(text, id) {
+    read(text: string, id: string) {
         if (!this.isReady) {
             console.error("Reader is not ready yet");
             return;
@@ -32,7 +53,7 @@ export class Reader {
         const pitch = randomInRange(0.7, 1.1);
         const rate = randomInRange(0.9, 1);
 
-        const utterance = new SpeechSynthesisUtterance(text);
+        const utterance: SpeechSynthesisUtterance = new window.SpeechSynthesisUtterance(text);
         utterance.voice = this.voices.find(voice => voice.name === voiceName) || this.voices[0];
         utterance.pitch = pitch;
         utterance.rate = rate;
@@ -60,15 +81,17 @@ export class Reader {
     }
 
     endProgress() {
-        clearInterval(this.newsProgressInterval);
+        if (this.newsProgressInterval !== null) {
+            clearInterval(this.newsProgressInterval);
+        }
         this.onEnd();
     }
 
-    getRussianVoices() {
+    getRussianVoices(): SpeechSynthesisVoice[] {
         return this.synth.getVoices().filter(voice => voice.lang.startsWith("ru") && voice.localService);
     }
 
-    getVoicesMap() {
+    getVoicesMap(): VoiceMap[] {
         return this.voices.map(voice => ({
             name: voice.name,
             lang: voice.lang,

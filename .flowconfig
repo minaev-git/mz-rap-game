@@ -1,0 +1,26 @@
+[ignore]
+<PROJECT_ROOT>/dist/.*
+<PROJECT_ROOT>/node_modules/.*
+<PROJECT_ROOT>/webpack\.config\.js
+
+[include]
+
+[libs]
+
+[lints]
+all=error
+
+[options]
+all=true
+emoji=true
+module.name_mapper.extension='mp3' -> '<PROJECT_ROOT>/flow/mp3-resolver.js'
+module.file_ext=.js
+module.file_ext=.jsx
+module.use_strict=true
+
+[strict]
+nonstrict-import
+unclear-type
+unsafe-getters-setters
+untyped-import
+untyped-type-import

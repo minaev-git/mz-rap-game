@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
-import { reducers } from "./ducks";
+import { combinedReducers } from "./ducks";
 import { setLoops } from "./ducks/loops";
 import { setCategories } from "./ducks/categories";
 import { setNews } from "./ducks/news";
@@ -12,7 +12,7 @@ import { generatePlayList, getRecordFromUrl, validateLoopId } from "./components
 import { addLoops, addNews } from "./ducks/record";
 import * as styles from "./index.css";
 
-const store = createStore(reducers);
+const store = createStore(combinedReducers);
 
 // valid ids are required to be able to create a share link
 loops.forEach(({ id }) => validateLoopId(id));
@@ -24,23 +24,26 @@ store.dispatch(setNews(news));
 
 // check if there's a record in the url query parameter
 const recordHash = getRecordFromUrl();
-if (recordHash) {
+if (recordHash !== null) {
     const playlist = generatePlayList(recordHash);
     if (playlist) {
         playlist.loops.forEach(recordedLoops => {
             store.dispatch(addLoops(recordedLoops));
         });
-        playlist.news.forEach(recorderNews => {
-            store.dispatch(addNews(recorderNews));
+        playlist.news.forEach(recordedNews => {
+            store.dispatch(addNews(recordedNews));
         });
     }
 }
 
 const rootNode = document.createElement("div");
-rootNode.className = styles.rootContainer;
-document.body.appendChild(rootNode);
+rootNode.className = styles.rootCOntainer;
+const body = document.body;
+if (body !== null) {
+    body.appendChild(rootNode);
+}
 
-const renderApp = Component => {
+const renderApp = (Component) => {
     render(
         <Provider store={store}>
             <Component />
@@ -51,7 +54,7 @@ const renderApp = Component => {
 
 renderApp(App);
 
-if (module.hot) {
+if (module.hot !== undefined) {
     module.hot.accept("./App", () => {
         renderApp(App);
     });

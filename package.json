@@ -4,19 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack",
-    "start": "webpack-dev-server --hot"
+    "lint": "flow check && flow stop",
+    "build": "npm run lint && webpack && npm run flow-stop",
+    "start": "webpack-dev-server --hot",
+    "flow-stop": "flow stop"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.0.1",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-flow": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.2",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^1.0.0",
     "file-loader": "^2.0.0",
+    "flow-bin": "^0.83.0",
+    "flow-typed": "^2.5.1",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.2",
     "webpack": "^4.19.0",

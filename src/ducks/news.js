@@ -1,15 +1,26 @@
+import type { News } from "../types";
+import type { RootState } from "./index";
+
 export const SET_NEWS = "news/SET_NEWS";
 
-const initialState = [];
+export type NewsState = News[];
 
-export function setNews(news) {
+const initialState: NewsState = [];
+
+type SetNewsAction = {|
+    +type: typeof SET_NEWS,
+    +payload: News[],
+|}
+export function setNews(news: News[]): SetNewsAction {
     return {
         type: SET_NEWS,
         payload: news,
     };
 }
 
-export function newsReducer(state = initialState, action) {
+type NewsAction = SetNewsAction;
+
+export function newsReducer(state: NewsState = initialState, action: NewsAction): NewsState {
     switch (action.type) {
         case SET_NEWS:
             return [
@@ -20,6 +31,6 @@ export function newsReducer(state = initialState, action) {
     }
 }
 
-export function selectState(rootState) {
+export function selectState(rootState: RootState): NewsState {
     return rootState.news;
 }

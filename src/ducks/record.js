@@ -1,10 +1,25 @@
+import type { RootState } from "./index";
+
 export const SET_IS_RECORDING = "record/SET_IS_RECORDING";
 export const SET_IS_PLAYING_RECORD = "record/SET_IS_PLAYING_RECORD";
-export const SET_START_TIMESTAMP = "record/SET_START_TIMESTAMP";
 export const ADD_LOOPS = "record/ADD_LOOPS";
 export const ADD_NEWS = "record/ADD_NEWS";
 
-const initialState = {
+export type RecordLoops = string[];
+export type RecordNews = {|
+    +id: string,
+    +timestamp: number,
+|};
+
+export type RecordState = {|
+    +startTimestamp: number | null,
+    +isRecording: boolean,
+    +isPlayingRecord: boolean,
+    +loops: RecordLoops[],
+    +news: RecordNews[],
+|};
+
+const initialState: RecordState = {
     startTimestamp: null,
     isRecording: false,
     isPlayingRecord: false,
@@ -12,35 +27,60 @@ const initialState = {
     news: [],
 };
 
-export function setIsRecording(value) {
+type SetIsRecordingAction = {|
+    +type: typeof SET_IS_RECORDING,
+    +payload: boolean;
+|}
+
+export function setIsRecording(value: boolean): SetIsRecordingAction {
     return {
         type: SET_IS_RECORDING,
         payload: value,
     }
 }
 
-export function setIsPlayingRecord(value) {
+type SetIsPlayingAction = {|
+    +type: typeof SET_IS_PLAYING_RECORD,
+    +payload: boolean;
+|}
+
+export function setIsPlayingRecord(value: boolean): SetIsPlayingAction {
     return {
         type: SET_IS_PLAYING_RECORD,
         payload: value,
     }
 }
 
-export function addLoops(loops) {
+type AddLoopsAction = {|
+    +type: typeof ADD_LOOPS,
+    +payload: RecordLoops;
+|}
+
+export function addLoops(loops: RecordLoops): AddLoopsAction {
     return {
         type: ADD_LOOPS,
         payload: loops,
     }
 }
 
-export function addNews({ id, timestamp }) {
+type AddNewsAction = {|
+    +type: typeof ADD_NEWS,
+    +payload: RecordNews;
+|}
+
+export function addNews({ id, timestamp }: RecordNews): AddNewsAction {
     return {
         type: ADD_NEWS,
         payload: { id, timestamp },
     }
 }
 
-export function recordReducer(state = initialState, action) {
+type RecordAction = SetIsRecordingAction |
+    SetIsPlayingAction |
+    AddLoopsAction |
+    AddNewsAction;
+
+export function recordReducer(state: RecordState = initialState, action: RecordAction): RecordState {
     switch (action.type) {
         case SET_IS_RECORDING: {
             if (action.payload) {
@@ -61,21 +101,14 @@ export function recordReducer(state = initialState, action) {
                 isPlayingRecord: action.payload,
             };
         }
-        case SET_START_TIMESTAMP: {
+        case ADD_LOOPS: {
             return {
                 ...state,
-                startTimestamp: action.payload,
-            }
-        }
-        case ADD_LOOPS: {
-            const newState = {
-                ...state,
+                startTimestamp: state.startTimestamp === null ?
+                    Date.now() :
+                    state.startTimestamp,
                 loops: [...state.loops, action.payload],
             };
-            if (state.startTimestamp === null) {
-                newState.startTimestamp = Date.now();
-            }
-            return newState;
         }
         case ADD_NEWS: {
             return {
@@ -88,26 +121,26 @@ export function recordReducer(state = initialState, action) {
     }
 }
 
-export function selectState(rootState) {
+export function selectState(rootState: RootState): RecordState {
     return rootState.record;
 }
 
-export function selectIsRecording(state) {
+export function selectIsRecording(state: RootState): boolean {
     return selectState(state).isRecording;
 }
 
-export function selectIsPlayingRecord(state) {
+export function selectIsPlayingRecord(state: RootState): boolean {
     return selectState(state).isPlayingRecord;
 }
 
-export function selectStartTimestamp(state) {
+export function selectStartTimestamp(state: RootState): number | null {
     return selectState(state).startTimestamp;
 }
 
-export function selectRecordLoops(state) {
+export function selectRecordLoops(state: RootState): RecordLoops[] {
     return selectState(state).loops;
 }
 
-export function selectRecordNews(state) {
+export function selectRecordNews(state: RootState): RecordNews[] {
     return selectState(state).news;
 }

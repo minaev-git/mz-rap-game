@@ -1,4 +1,6 @@
-export const LoopState = {
+import type { LoopStateEnum } from "./types";
+
+export const LoopState: { [string]: LoopStateEnum } = {
     Off: "off",
     Loading: "loading",
     NextOn: "nextOn",

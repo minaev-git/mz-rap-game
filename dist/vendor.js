@@ -4426,7 +4426,7 @@ module.exports = ReactPropTypesSecret;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v16.5.2
+/** @license React v16.5.1
  * react-dom.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -4447,7 +4447,7 @@ var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var _assign = __webpack_require__(/*! object-assign */ "./node_modules/object-assign/index.js");
 var checkPropTypes = __webpack_require__(/*! prop-types/checkPropTypes */ "./node_modules/prop-types/checkPropTypes.js");
 var schedule = __webpack_require__(/*! schedule */ "./node_modules/schedule/index.js");
-var tracing = __webpack_require__(/*! schedule/tracing */ "./node_modules/schedule/tracing.js");
+var tracking = __webpack_require__(/*! schedule/tracking */ "./node_modules/schedule/tracking.js");
 
 /**
  * Use invariant() to assert state which your program assumes to be true.
@@ -7606,8 +7606,8 @@ var warnAboutLegacyContextAPI = false;
 // Gather advanced timing metrics for Profiler subtrees.
 var enableProfilerTimer = true;
 
-// Trace which interactions trigger each commit.
-var enableSchedulerTracing = true;
+// Track which interactions trigger each commit.
+var enableSchedulerTracking = true;
 
 // Only used in www builds.
 
@@ -9722,7 +9722,7 @@ function getModernOffsetsFromPoints(outerNode, anchorNode, anchorOffset, focusNo
  */
 function setOffsets(node, offsets) {
   var doc = node.ownerDocument || document;
-  var win = doc && doc.defaultView || window;
+  var win = doc ? doc.defaultView : window;
   var selection = win.getSelection();
   var length = node.textContent.length;
   var start = Math.min(offsets.start, length);
@@ -10406,7 +10406,6 @@ function initWrapperState$2(element, props) {
 function updateWrapper$1(element, props) {
   var node = element;
   var value = getToStringValue(props.value);
-  var defaultValue = getToStringValue(props.defaultValue);
   if (value != null) {
     // Cast `value` to a string to ensure the value is set correctly. While
     // browsers typically do this as necessary, jsdom doesn't.
@@ -10415,12 +10414,12 @@ function updateWrapper$1(element, props) {
     if (newValue !== node.value) {
       node.value = newValue;
     }
-    if (props.defaultValue == null && node.defaultValue !== newValue) {
+    if (props.defaultValue == null) {
       node.defaultValue = newValue;
     }
   }
-  if (defaultValue != null) {
-    node.defaultValue = toString(defaultValue);
+  if (props.defaultValue != null) {
+    node.defaultValue = toString(getToStringValue(props.defaultValue));
   }
 }
 
@@ -14505,17 +14504,17 @@ function assignFiberPropertiesInDEV(target, source) {
 // TODO: This should be lifted into the renderer.
 
 
-// The following attributes are only used by interaction tracing builds.
+// The following attributes are only used by interaction tracking builds.
 // They enable interactions to be associated with their async work,
 // And expose interaction metadata to the React DevTools Profiler plugin.
-// Note that these attributes are only defined when the enableSchedulerTracing flag is enabled.
+// Note that these attributes are only defined when the enableSchedulerTracking flag is enabled.
 
 
 // Exported FiberRoot type includes all properties,
 // To avoid requiring potentially error-prone :any casts throughout the project.
-// Profiling properties are only safe to access in profiling builds (when enableSchedulerTracing is true).
+// Profiling properties are only safe to access in profiling builds (when enableSchedulerTracking is true).
 // The types are defined separately within this file to ensure they stay in sync.
-// (We don't have to use an inline :any cast when enableSchedulerTracing is disabled.)
+// (We don't have to use an inline :any cast when enableSchedulerTracking is disabled.)
 
 /* eslint-enable no-use-before-define */
 
@@ -14525,7 +14524,7 @@ function createFiberRoot(containerInfo, isAsync, hydrate) {
   var uninitializedFiber = createHostRootFiber(isAsync);
 
   var root = void 0;
-  if (enableSchedulerTracing) {
+  if (enableSchedulerTracking) {
     root = {
       current: uninitializedFiber,
       containerInfo: containerInfo,
@@ -14550,7 +14549,7 @@ function createFiberRoot(containerInfo, isAsync, hydrate) {
       firstBatch: null,
       nextScheduledRoot: null,
 
-      interactionThreadID: tracing.unstable_getThreadID(),
+      interactionThreadID: tracking.unstable_getThreadID(),
       memoizedInteractions: new Set(),
       pendingInteractionMap: new Map()
     };
@@ -14584,8 +14583,8 @@ function createFiberRoot(containerInfo, isAsync, hydrate) {
   uninitializedFiber.stateNode = root;
 
   // The reason for the way the Flow types are structured in this file,
-  // Is to avoid needing :any casts everywhere interaction tracing fields are used.
-  // Unfortunately that requires an :any cast for non-interaction tracing capable builds.
+  // Is to avoid needing :any casts everywhere interaction tracking fields are used.
+  // Unfortunately that requires an :any cast for non-interaction tracking capable builds.
   // $FlowFixMe Remove this :any cast and replace it with something better.
   return root;
 }
@@ -19181,7 +19180,7 @@ function commitLifeCycles(finishedRoot, current$$1, finishedWork, committedExpir
         if (enableProfilerTimer) {
           var onRender = finishedWork.memoizedProps.onRender;
 
-          if (enableSchedulerTracing) {
+          if (enableSchedulerTracking) {
             onRender(finishedWork.memoizedProps.id, current$$1 === null ? 'mount' : 'update', finishedWork.actualDuration, finishedWork.treeBaseDuration, finishedWork.actualStartTime, getCommitTime(), finishedRoot.memoizedInteractions);
           } else {
             onRender(finishedWork.memoizedProps.id, current$$1 === null ? 'mount' : 'update', finishedWork.actualDuration, finishedWork.treeBaseDuration, finishedWork.actualStartTime, getCommitTime());
@@ -20037,10 +20036,10 @@ var didWarnSetStateChildContext = void 0;
 var warnAboutUpdateOnUnmounted = void 0;
 var warnAboutInvalidUpdates = void 0;
 
-if (enableSchedulerTracing) {
+if (enableSchedulerTracking) {
   // Provide explicit error message when production+profiling bundle of e.g. react-dom
-  // is used with production (non-profiling) bundle of schedule/tracing
-  !(tracing.__interactionsRef != null && tracing.__interactionsRef.current != null) ? invariant(false, 'It is not supported to run the profiling version of a renderer (for example, `react-dom/profiling`) without also replacing the `schedule/tracing` module with `schedule/tracing-profiling`. Your bundler might have a setting for aliasing both modules. Learn more at http://fb.me/react-profiling') : void 0;
+  // is used with production (non-profiling) bundle of schedule/tracking
+  !(tracking.__interactionsRef != null && tracking.__interactionsRef.current != null) ? invariant(false, 'It is not supported to run the profiling version of a renderer (for example, `react-dom/profiling`) without also replacing the `schedule/tracking` module with `schedule/tracking-profiling`. Your bundler might have a setting for aliasing both modules. Learn more at http://fb.me/react-profiling') : void 0;
 }
 
 {
@@ -20381,12 +20380,12 @@ function commitRoot(root, finishedWork) {
   markCommittedPriorityLevels(root, earliestRemainingTimeBeforeCommit);
 
   var prevInteractions = null;
-  var committedInteractions = enableSchedulerTracing ? [] : null;
-  if (enableSchedulerTracing) {
+  var committedInteractions = enableSchedulerTracking ? [] : null;
+  if (enableSchedulerTracking) {
     // Restore any pending interactions at this point,
     // So that cascading work triggered during the render phase will be accounted for.
-    prevInteractions = tracing.__interactionsRef.current;
-    tracing.__interactionsRef.current = root.memoizedInteractions;
+    prevInteractions = tracking.__interactionsRef.current;
+    tracking.__interactionsRef.current = root.memoizedInteractions;
 
     // We are potentially finished with the current batch of interactions.
     // So we should clear them out of the pending interaction map.
@@ -20534,13 +20533,13 @@ function commitRoot(root, finishedWork) {
   }
   onCommit(root, earliestRemainingTimeAfterCommit);
 
-  if (enableSchedulerTracing) {
-    tracing.__interactionsRef.current = prevInteractions;
+  if (enableSchedulerTracking) {
+    tracking.__interactionsRef.current = prevInteractions;
 
     var subscriber = void 0;
 
     try {
-      subscriber = tracing.__subscriberRef.current;
+      subscriber = tracking.__subscriberRef.current;
       if (subscriber !== null && root.memoizedInteractions.size > 0) {
         var threadID = computeThreadID(committedExpirationTime, root.interactionThreadID);
         subscriber.onWorkStopped(root.memoizedInteractions, threadID);
@@ -20897,11 +20896,11 @@ function renderRoot(root, isYieldy, isExpired) {
   var expirationTime = root.nextExpirationTimeToWorkOn;
 
   var prevInteractions = null;
-  if (enableSchedulerTracing) {
-    // We're about to start new traced work.
+  if (enableSchedulerTracking) {
+    // We're about to start new tracked work.
     // Restore pending interactions so cascading work triggered during the render phase will be accounted for.
-    prevInteractions = tracing.__interactionsRef.current;
-    tracing.__interactionsRef.current = root.memoizedInteractions;
+    prevInteractions = tracking.__interactionsRef.current;
+    tracking.__interactionsRef.current = root.memoizedInteractions;
   }
 
   // Check if we're starting from a fresh stack, or if we're resuming from
@@ -20914,7 +20913,7 @@ function renderRoot(root, isYieldy, isExpired) {
     nextUnitOfWork = createWorkInProgress(nextRoot.current, null, nextRenderExpirationTime);
     root.pendingCommitExpirationTime = NoWork;
 
-    if (enableSchedulerTracing) {
+    if (enableSchedulerTracking) {
       // Determine which interactions this batch of work currently includes,
       // So that we can accurately attribute time spent working on it,
       var interactions = new Set();
@@ -20933,13 +20932,13 @@ function renderRoot(root, isYieldy, isExpired) {
       root.memoizedInteractions = interactions;
 
       if (interactions.size > 0) {
-        var subscriber = tracing.__subscriberRef.current;
+        var subscriber = tracking.__subscriberRef.current;
         if (subscriber !== null) {
           var threadID = computeThreadID(expirationTime, root.interactionThreadID);
           try {
             subscriber.onWorkStarted(interactions, threadID);
           } catch (error) {
-            // Work thrown by an interaction tracing subscriber should be rethrown,
+            // Work thrown by an interaction tracking subscriber should be rethrown,
             // But only once it's safe (to avoid leaveing the scheduler in an invalid state).
             // Store the error for now and we'll re-throw in finishRendering().
             if (!hasUnhandledError) {
@@ -21002,9 +21001,9 @@ function renderRoot(root, isYieldy, isExpired) {
     break;
   } while (true);
 
-  if (enableSchedulerTracing) {
-    // Traced work is done for now; restore the previous interactions.
-    tracing.__interactionsRef.current = prevInteractions;
+  if (enableSchedulerTracking) {
+    // Tracked work is done for now; restore the previous interactions.
+    tracking.__interactionsRef.current = prevInteractions;
   }
 
   // We're done performing work. Time to clean up.
@@ -21255,15 +21254,15 @@ function retrySuspendedRoot(root, fiber, suspendedTime) {
     scheduleWorkToRoot(fiber, retryTime);
     var rootExpirationTime = root.expirationTime;
     if (rootExpirationTime !== NoWork) {
-      if (enableSchedulerTracing) {
+      if (enableSchedulerTracking) {
         // Restore previous interactions so that new work is associated with them.
-        var prevInteractions = tracing.__interactionsRef.current;
-        tracing.__interactionsRef.current = root.memoizedInteractions;
+        var prevInteractions = tracking.__interactionsRef.current;
+        tracking.__interactionsRef.current = root.memoizedInteractions;
         // Because suspense timeouts do not decrement the interaction count,
         // Continued suspense work should also not increment the count.
         storeInteractionsForExpirationTime(root, rootExpirationTime, false);
         requestWork(root, rootExpirationTime);
-        tracing.__interactionsRef.current = prevInteractions;
+        tracking.__interactionsRef.current = prevInteractions;
       } else {
         requestWork(root, rootExpirationTime);
       }
@@ -21304,11 +21303,11 @@ function scheduleWorkToRoot(fiber, expirationTime) {
 }
 
 function storeInteractionsForExpirationTime(root, expirationTime, updateInteractionCounts) {
-  if (!enableSchedulerTracing) {
+  if (!enableSchedulerTracking) {
     return;
   }
 
-  var interactions = tracing.__interactionsRef.current;
+  var interactions = tracking.__interactionsRef.current;
   if (interactions.size > 0) {
     var pendingInteractions = root.pendingInteractionMap.get(expirationTime);
     if (pendingInteractions != null) {
@@ -21331,7 +21330,7 @@ function storeInteractionsForExpirationTime(root, expirationTime, updateInteract
       }
     }
 
-    var subscriber = tracing.__subscriberRef.current;
+    var subscriber = tracking.__subscriberRef.current;
     if (subscriber !== null) {
       var threadID = computeThreadID(expirationTime, root.interactionThreadID);
       subscriber.onWorkScheduled(interactions, threadID);
@@ -21357,7 +21356,7 @@ function scheduleWork(fiber, expirationTime) {
     return;
   }
 
-  if (enableSchedulerTracing) {
+  if (enableSchedulerTracking) {
     storeInteractionsForExpirationTime(root, expirationTime, true);
   }
 
@@ -21498,7 +21497,7 @@ function onTimeout(root, finishedWork, suspendedExpirationTime) {
     recomputeCurrentRendererTime();
     currentSchedulerTime = currentRendererTime;
 
-    if (enableSchedulerTracing) {
+    if (enableSchedulerTracking) {
       // Don't update pending interaction counts for suspense timeouts,
       // Because we know we still need to do more work in this case.
       suspenseDidTimeout = true;
@@ -22004,7 +22003,7 @@ function flushControlled(fn) {
   } finally {
     isBatchingUpdates = previousIsBatchingUpdates;
     if (!isBatchingUpdates && !isRendering) {
-      performSyncWork();
+      performWork(Sync, null);
     }
   }
 }
@@ -22181,7 +22180,7 @@ implementation) {
 
 // TODO: this is special because it gets imported during build.
 
-var ReactVersion = '16.5.2';
+var ReactVersion = '16.5.1';
 
 // TODO: This type is shared between the reconciler and ReactDOM, but will
 // eventually be lifted out to the renderer.
@@ -23887,7 +23886,7 @@ function warning(message) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v16.5.2
+/** @license React v16.5.1
  * react.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -23909,7 +23908,7 @@ var checkPropTypes = __webpack_require__(/*! prop-types/checkPropTypes */ "./nod
 
 // TODO: this is special because it gets imported during build.
 
-var ReactVersion = '16.5.2';
+var ReactVersion = '16.5.1';
 
 // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
 // nor polyfill, then a plain number is used for performance.
@@ -23970,7 +23969,7 @@ var enableSuspense = false;
 // Gather advanced timing metrics for Profiler subtrees.
 
 
-// Trace which interactions trigger each commit.
+// Track which interactions trigger each commit.
 
 
 // Only used in www builds.
@@ -26242,16 +26241,16 @@ if ("development" !== 'production' && typeof isCrushed.name === 'string' && isCr
 
 /***/ }),
 
-/***/ "./node_modules/schedule/cjs/schedule-tracing.development.js":
-/*!*******************************************************************!*\
-  !*** ./node_modules/schedule/cjs/schedule-tracing.development.js ***!
-  \*******************************************************************/
+/***/ "./node_modules/schedule/cjs/schedule-tracking.development.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/schedule/cjs/schedule-tracking.development.js ***!
+  \********************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v16.5.2
- * schedule-tracing.development.js
+/** @license React v16.5.1
+ * schedule-tracking.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -26299,8 +26298,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 // Gather advanced timing metrics for Profiler subtrees.
 
 
-// Trace which interactions trigger each commit.
-var enableSchedulerTracing = true;
+// Track which interactions trigger each commit.
+var enableSchedulerTracking = true;
 
 // Only used in www builds.
 
@@ -26317,16 +26316,16 @@ var DEFAULT_THREAD_ID = 0;
 var interactionIDCounter = 0;
 var threadIDCounter = 0;
 
-// Set of currently traced interactions.
+// Set of currently tracked interactions.
 // Interactions "stack"–
-// Meaning that newly traced interactions are appended to the previously active set.
+// Meaning that newly tracked interactions are appended to the previously active set.
 // When an interaction goes out of scope, the previous set (if any) is restored.
 exports.__interactionsRef = null;
 
 // Listener(s) to notify when interactions begin and end.
 exports.__subscriberRef = null;
 
-if (enableSchedulerTracing) {
+if (enableSchedulerTracking) {
   exports.__interactionsRef = {
     current: new Set()
   };
@@ -26336,7 +26335,7 @@ if (enableSchedulerTracing) {
 }
 
 function unstable_clear(callback) {
-  if (!enableSchedulerTracing) {
+  if (!enableSchedulerTracking) {
     return callback();
   }
 
@@ -26351,7 +26350,7 @@ function unstable_clear(callback) {
 }
 
 function unstable_getCurrent() {
-  if (!enableSchedulerTracing) {
+  if (!enableSchedulerTracking) {
     return null;
   } else {
     return exports.__interactionsRef.current;
@@ -26362,10 +26361,10 @@ function unstable_getThreadID() {
   return ++threadIDCounter;
 }
 
-function unstable_trace(name, timestamp, callback) {
+function unstable_track(name, timestamp, callback) {
   var threadID = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : DEFAULT_THREAD_ID;
 
-  if (!enableSchedulerTracing) {
+  if (!enableSchedulerTracking) {
     return callback();
   }
 
@@ -26378,7 +26377,7 @@ function unstable_trace(name, timestamp, callback) {
 
   var prevInteractions = exports.__interactionsRef.current;
 
-  // Traced interactions should stack/accumulate.
+  // Tracked interactions should stack/accumulate.
   // To do that, clone the current interactions.
   // The previous set will be restored upon completion.
   var interactions = new Set(prevInteractions);
@@ -26390,7 +26389,7 @@ function unstable_trace(name, timestamp, callback) {
 
   try {
     if (subscriber !== null) {
-      subscriber.onInteractionTraced(interaction);
+      subscriber.onInteractionTracked(interaction);
     }
   } finally {
     try {
@@ -26426,7 +26425,7 @@ function unstable_trace(name, timestamp, callback) {
 function unstable_wrap(callback) {
   var threadID = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_THREAD_ID;
 
-  if (!enableSchedulerTracing) {
+  if (!enableSchedulerTracking) {
     return callback;
   }
 
@@ -26517,18 +26516,18 @@ function unstable_wrap(callback) {
 }
 
 var subscribers = null;
-if (enableSchedulerTracing) {
+if (enableSchedulerTracking) {
   subscribers = new Set();
 }
 
 function unstable_subscribe(subscriber) {
-  if (enableSchedulerTracing) {
+  if (enableSchedulerTracking) {
     subscribers.add(subscriber);
 
     if (subscribers.size === 1) {
       exports.__subscriberRef.current = {
         onInteractionScheduledWorkCompleted: onInteractionScheduledWorkCompleted,
-        onInteractionTraced: onInteractionTraced,
+        onInteractionTracked: onInteractionTracked,
         onWorkCanceled: onWorkCanceled,
         onWorkScheduled: onWorkScheduled,
         onWorkStarted: onWorkStarted,
@@ -26539,7 +26538,7 @@ function unstable_subscribe(subscriber) {
 }
 
 function unstable_unsubscribe(subscriber) {
-  if (enableSchedulerTracing) {
+  if (enableSchedulerTracking) {
     subscribers.delete(subscriber);
 
     if (subscribers.size === 0) {
@@ -26548,13 +26547,13 @@ function unstable_unsubscribe(subscriber) {
   }
 }
 
-function onInteractionTraced(interaction) {
+function onInteractionTracked(interaction) {
   var didCatchError = false;
   var caughtError = null;
 
   subscribers.forEach(function (subscriber) {
     try {
-      subscriber.onInteractionTraced(interaction);
+      subscriber.onInteractionTracked(interaction);
     } catch (error) {
       if (!didCatchError) {
         didCatchError = true;
@@ -26671,7 +26670,7 @@ function onWorkCanceled(interactions, threadID) {
 exports.unstable_clear = unstable_clear;
 exports.unstable_getCurrent = unstable_getCurrent;
 exports.unstable_getThreadID = unstable_getThreadID;
-exports.unstable_trace = unstable_trace;
+exports.unstable_track = unstable_track;
 exports.unstable_wrap = unstable_wrap;
 exports.unstable_subscribe = unstable_subscribe;
 exports.unstable_unsubscribe = unstable_unsubscribe;
@@ -26689,7 +26688,7 @@ exports.unstable_unsubscribe = unstable_unsubscribe;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v16.5.2
+/** @license React v16.5.1
  * schedule.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -26708,244 +26707,50 @@ if (true) {
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-/* eslint-disable no-var */
+var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
 
-// TODO: Currently there's only a single priority level, Deferred. Will add
-// additional priorities.
-var DEFERRED_TIMEOUT = 5000;
+/**
+ * A scheduling library to allow scheduling work with more granular priority and
+ * control than requestAnimationFrame and requestIdleCallback.
+ * Current TODO items:
+ * X- Pull out the scheduleWork polyfill built into React
+ * X- Initial test coverage
+ * X- Support for multiple callbacks
+ * - Support for two priorities; serial and deferred
+ * - Better test coverage
+ * - Better docblock
+ * - Polish documentation, API
+ */
 
-// Callbacks are stored as a circular, doubly linked list.
-var firstCallbackNode = null;
-
-var isPerformingWork = false;
-
-var isHostCallbackScheduled = false;
-
-var hasNativePerformanceNow = typeof performance === 'object' && typeof performance.now === 'function';
-
-var timeRemaining;
-if (hasNativePerformanceNow) {
-  timeRemaining = function () {
-    // We assume that if we have a performance timer that the rAF callback
-    // gets a performance timer value. Not sure if this is always true.
-    var remaining = getFrameDeadline() - performance.now();
-    return remaining > 0 ? remaining : 0;
-  };
-} else {
-  timeRemaining = function () {
-    // Fallback to Date.now()
-    var remaining = getFrameDeadline() - Date.now();
-    return remaining > 0 ? remaining : 0;
-  };
-}
-
-var deadlineObject = {
-  timeRemaining: timeRemaining,
-  didTimeout: false
-};
-
-function ensureHostCallbackIsScheduled() {
-  if (isPerformingWork) {
-    // Don't schedule work yet; wait until the next time we yield.
-    return;
-  }
-  // Schedule the host callback using the earliest timeout in the list.
-  var timesOutAt = firstCallbackNode.timesOutAt;
-  if (!isHostCallbackScheduled) {
-    isHostCallbackScheduled = true;
-  } else {
-    // Cancel the existing host callback.
-    cancelCallback();
-  }
-  requestCallback(flushWork, timesOutAt);
-}
-
-function flushFirstCallback(node) {
-  var flushedNode = firstCallbackNode;
-
-  // Remove the node from the list before calling the callback. That way the
-  // list is in a consistent state even if the callback throws.
-  var next = firstCallbackNode.next;
-  if (firstCallbackNode === next) {
-    // This is the last callback in the list.
-    firstCallbackNode = null;
-    next = null;
-  } else {
-    var previous = firstCallbackNode.previous;
-    firstCallbackNode = previous.next = next;
-    next.previous = previous;
-  }
-
-  flushedNode.next = flushedNode.previous = null;
-
-  // Now it's safe to call the callback.
-  var callback = flushedNode.callback;
-  callback(deadlineObject);
-}
-
-function flushWork(didTimeout) {
-  isPerformingWork = true;
-  deadlineObject.didTimeout = didTimeout;
-  try {
-    if (didTimeout) {
-      // Flush all the timed out callbacks without yielding.
-      while (firstCallbackNode !== null) {
-        // Read the current time. Flush all the callbacks that expire at or
-        // earlier than that time. Then read the current time again and repeat.
-        // This optimizes for as few performance.now calls as possible.
-        var currentTime = exports.unstable_now();
-        if (firstCallbackNode.timesOutAt <= currentTime) {
-          do {
-            flushFirstCallback();
-          } while (firstCallbackNode !== null && firstCallbackNode.timesOutAt <= currentTime);
-          continue;
-        }
-        break;
-      }
-    } else {
-      // Keep flushing callbacks until we run out of time in the frame.
-      if (firstCallbackNode !== null) {
-        do {
-          flushFirstCallback();
-        } while (firstCallbackNode !== null && getFrameDeadline() - exports.unstable_now() > 0);
-      }
-    }
-  } finally {
-    isPerformingWork = false;
-    if (firstCallbackNode !== null) {
-      // There's still work remaining. Request another callback.
-      ensureHostCallbackIsScheduled(firstCallbackNode);
-    } else {
-      isHostCallbackScheduled = false;
-    }
-  }
-}
-
-function unstable_scheduleWork(callback, options) {
-  var currentTime = exports.unstable_now();
-
-  var timesOutAt;
-  if (options !== undefined && options !== null && options.timeout !== null && options.timeout !== undefined) {
-    // Check for an explicit timeout
-    timesOutAt = currentTime + options.timeout;
-  } else {
-    // Compute an absolute timeout using the default constant.
-    timesOutAt = currentTime + DEFERRED_TIMEOUT;
-  }
-
-  var newNode = {
-    callback: callback,
-    timesOutAt: timesOutAt,
-    next: null,
-    previous: null
-  };
-
-  // Insert the new callback into the list, sorted by its timeout.
-  if (firstCallbackNode === null) {
-    // This is the first callback in the list.
-    firstCallbackNode = newNode.next = newNode.previous = newNode;
-    ensureHostCallbackIsScheduled(firstCallbackNode);
-  } else {
-    var next = null;
-    var node = firstCallbackNode;
-    do {
-      if (node.timesOutAt > timesOutAt) {
-        // The new callback times out before this one.
-        next = node;
-        break;
-      }
-      node = node.next;
-    } while (node !== firstCallbackNode);
-
-    if (next === null) {
-      // No callback with a later timeout was found, which means the new
-      // callback has the latest timeout in the list.
-      next = firstCallbackNode;
-    } else if (next === firstCallbackNode) {
-      // The new callback has the earliest timeout in the entire list.
-      firstCallbackNode = newNode;
-      ensureHostCallbackIsScheduled(firstCallbackNode);
-    }
-
-    var previous = next.previous;
-    previous.next = next.previous = newNode;
-    newNode.next = next;
-    newNode.previous = previous;
-  }
-
-  return newNode;
-}
-
-function unstable_cancelScheduledWork(callbackNode) {
-  var next = callbackNode.next;
-  if (next === null) {
-    // Already cancelled.
-    return;
-  }
-
-  if (next === callbackNode) {
-    // This is the only scheduled callback. Clear the list.
-    firstCallbackNode = null;
-  } else {
-    // Remove the callback from its position in the list.
-    if (callbackNode === firstCallbackNode) {
-      firstCallbackNode = next;
-    }
-    var previous = callbackNode.previous;
-    previous.next = next;
-    next.previous = previous;
-  }
-
-  callbackNode.next = callbackNode.previous = null;
-}
-
-// The remaining code is essentially a polyfill for requestIdleCallback. It
-// works by scheduling a requestAnimationFrame, storing the time for the start
-// of the frame, then scheduling a postMessage which gets scheduled after paint.
-// Within the postMessage handler do as much work as possible until time + frame
-// rate. By separating the idle call into a separate event tick we ensure that
+// This is a built-in polyfill for requestIdleCallback. It works by scheduling
+// a requestAnimationFrame, storing the time for the start of the frame, then
+// scheduling a postMessage which gets scheduled after paint. Within the
+// postMessage handler do as much work as possible until time + frame rate.
+// By separating the idle call into a separate event tick we ensure that
 // layout, paint and other browser work is counted against the available time.
 // The frame rate is dynamically adjusted.
 
 // We capture a local reference to any global, in case it gets polyfilled after
-// this module is initially evaluated. We want to be using a
-// consistent implementation.
+// this module is initially evaluated.
+// We want to be using a consistent implementation.
 var localDate = Date;
 
-// This initialization code may run even on server environments if a component
-// just imports ReactDOM (e.g. for findDOMNode). Some environments might not
-// have setTimeout or clearTimeout. However, we always expect them to be defined
-// on the client. https://github.com/facebook/react/pull/13088
+// This initialization code may run even on server environments
+// if a component just imports ReactDOM (e.g. for findDOMNode).
+// Some environments might not have setTimeout or clearTimeout.
+// However, we always expect them to be defined on the client.
+// https://github.com/facebook/react/pull/13088
 var localSetTimeout = typeof setTimeout === 'function' ? setTimeout : undefined;
 var localClearTimeout = typeof clearTimeout === 'function' ? clearTimeout : undefined;
 
-// We don't expect either of these to necessarily be defined, but we will error
-// later if they are missing on the client.
+// We don't expect either of these to necessarily be defined,
+// but we will error later if they are missing on the client.
 var localRequestAnimationFrame = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : undefined;
 var localCancelAnimationFrame = typeof cancelAnimationFrame === 'function' ? cancelAnimationFrame : undefined;
 
-// requestAnimationFrame does not run when the tab is in the background. If
-// we're backgrounded we prefer for that work to happen so that the page
-// continues to load in the background. So we also schedule a 'setTimeout' as
-// a fallback.
-// TODO: Need a better heuristic for backgrounded work.
-var ANIMATION_FRAME_TIMEOUT = 100;
-var rAFID;
-var rAFTimeoutID;
-var requestAnimationFrameWithTimeout = function (callback) {
-  // schedule rAF and also a setTimeout
-  rAFID = localRequestAnimationFrame(function (timestamp) {
-    // cancel the setTimeout
-    localClearTimeout(rAFTimeoutID);
-    callback(timestamp);
-  });
-  rAFTimeoutID = localSetTimeout(function () {
-    // cancel the requestAnimationFrame
-    localCancelAnimationFrame(rAFID);
-    callback(exports.unstable_now());
-  }, ANIMATION_FRAME_TIMEOUT);
-};
+var hasNativePerformanceNow = typeof performance === 'object' && typeof performance.now === 'function';
 
+exports.unstable_now = void 0;
 if (hasNativePerformanceNow) {
   var Performance = performance;
   exports.unstable_now = function () {
@@ -26957,46 +26762,80 @@ if (hasNativePerformanceNow) {
   };
 }
 
-var requestCallback;
-var cancelCallback;
-var getFrameDeadline;
+exports.unstable_scheduleWork = void 0;
+exports.unstable_cancelScheduledWork = void 0;
 
-if (typeof window === 'undefined') {
-  // If this accidentally gets imported in a non-browser environment, fallback
-  // to a naive implementation.
-  var timeoutID = -1;
-  requestCallback = function (callback, absoluteTimeout) {
-    timeoutID = setTimeout(callback, 0, true);
+if (!canUseDOM) {
+  var timeoutIds = new Map();
+
+  exports.unstable_scheduleWork = function (callback, options) {
+    // keeping return type consistent
+    var callbackConfig = {
+      scheduledCallback: callback,
+      timeoutTime: 0,
+      next: null,
+      prev: null
+    };
+    var timeoutId = localSetTimeout(function () {
+      callback({
+        timeRemaining: function () {
+          return Infinity;
+        },
+
+        didTimeout: false
+      });
+    });
+    timeoutIds.set(callback, timeoutId);
+    return callbackConfig;
   };
-  cancelCallback = function () {
-    clearTimeout(timeoutID);
+  exports.unstable_cancelScheduledWork = function (callbackId) {
+    var callback = callbackId.scheduledCallback;
+    var timeoutId = timeoutIds.get(callback);
+    timeoutIds.delete(callbackId);
+    localClearTimeout(timeoutId);
   };
-  getFrameDeadline = function () {
-    return 0;
-  };
-} else if (window._schedMock) {
-  // Dynamic injection, only for testing purposes.
-  var impl = window._schedMock;
-  requestCallback = impl[0];
-  cancelCallback = impl[1];
-  getFrameDeadline = impl[2];
 } else {
-  if (typeof console !== 'undefined') {
-    if (typeof localRequestAnimationFrame !== 'function') {
-      console.error("This browser doesn't support requestAnimationFrame. " + 'Make sure that you load a ' + 'polyfill in older browsers. https://fb.me/react-polyfills');
-    }
-    if (typeof localCancelAnimationFrame !== 'function') {
-      console.error("This browser doesn't support cancelAnimationFrame. " + 'Make sure that you load a ' + 'polyfill in older browsers. https://fb.me/react-polyfills');
+  {
+    if (typeof console !== 'undefined') {
+      if (typeof localRequestAnimationFrame !== 'function') {
+        console.error("This browser doesn't support requestAnimationFrame. " + 'Make sure that you load a ' + 'polyfill in older browsers. https://fb.me/react-polyfills');
+      }
+      if (typeof localCancelAnimationFrame !== 'function') {
+        console.error("This browser doesn't support cancelAnimationFrame. " + 'Make sure that you load a ' + 'polyfill in older browsers. https://fb.me/react-polyfills');
+      }
     }
   }
 
-  var scheduledCallback = null;
-  var isIdleScheduled = false;
-  var timeoutTime = -1;
+  var headOfPendingCallbacksLinkedList = null;
+  var tailOfPendingCallbacksLinkedList = null;
 
+  // We track what the next soonest timeoutTime is, to be able to quickly tell
+  // if none of the scheduled callbacks have timed out.
+  var nextSoonestTimeoutTime = -1;
+
+  var isIdleScheduled = false;
   var isAnimationFrameScheduled = false;
 
-  var isPerformingIdleWork = false;
+  // requestAnimationFrame does not run when the tab is in the background.
+  // if we're backgrounded we prefer for that work to happen so that the page
+  // continues	to load in the background.
+  // so we also schedule a 'setTimeout' as a fallback.
+  var animationFrameTimeout = 100;
+  var rafID = void 0;
+  var timeoutID = void 0;
+  var scheduleAnimationFrameWithFallbackSupport = function (callback) {
+    // schedule rAF and also a setTimeout
+    rafID = localRequestAnimationFrame(function (timestamp) {
+      // cancel the setTimeout
+      localClearTimeout(timeoutID);
+      callback(timestamp);
+    });
+    timeoutID = localSetTimeout(function () {
+      // cancel the requestAnimationFrame
+      localCancelAnimationFrame(rafID);
+      callback(exports.unstable_now());
+    }, animationFrameTimeout);
+  };
 
   var frameDeadline = 0;
   // We start out assuming that we run at 30fps but then the heuristic tracking
@@ -27005,8 +26844,93 @@ if (typeof window === 'undefined') {
   var previousFrameTime = 33;
   var activeFrameTime = 33;
 
-  getFrameDeadline = function () {
-    return frameDeadline;
+  var frameDeadlineObject = {
+    didTimeout: false,
+    timeRemaining: function () {
+      var remaining = frameDeadline - exports.unstable_now();
+      return remaining > 0 ? remaining : 0;
+    }
+  };
+
+  /**
+   * Handles the case where a callback errors:
+   * - don't catch the error, because this changes debugging behavior
+   * - do start a new postMessage callback, to call any remaining callbacks,
+   * - but only if there is an error, so there is not extra overhead.
+   */
+  var callUnsafely = function (callbackConfig, arg) {
+    var callback = callbackConfig.scheduledCallback;
+    var finishedCalling = false;
+    try {
+      callback(arg);
+      finishedCalling = true;
+    } finally {
+      // always remove it from linked list
+      exports.unstable_cancelScheduledWork(callbackConfig);
+
+      if (!finishedCalling) {
+        // an error must have been thrown
+        isIdleScheduled = true;
+        window.postMessage(messageKey, '*');
+      }
+    }
+  };
+
+  /**
+   * Checks for timed out callbacks, runs them, and then checks again to see if
+   * any more have timed out.
+   * Keeps doing this until there are none which have currently timed out.
+   */
+  var callTimedOutCallbacks = function () {
+    if (headOfPendingCallbacksLinkedList === null) {
+      return;
+    }
+
+    var currentTime = exports.unstable_now();
+    // TODO: this would be more efficient if deferred callbacks are stored in
+    // min heap.
+    // Or in a linked list with links for both timeoutTime order and insertion
+    // order.
+    // For now an easy compromise is the current approach:
+    // Keep a pointer to the soonest timeoutTime, and check that first.
+    // If it has not expired, we can skip traversing the whole list.
+    // If it has expired, then we step through all the callbacks.
+    if (nextSoonestTimeoutTime === -1 || nextSoonestTimeoutTime > currentTime) {
+      // We know that none of them have timed out yet.
+      return;
+    }
+    // NOTE: we intentionally wait to update the nextSoonestTimeoutTime until
+    // after successfully calling any timed out callbacks.
+    // If a timed out callback throws an error, we could get stuck in a state
+    // where the nextSoonestTimeoutTime was set wrong.
+    var updatedNextSoonestTimeoutTime = -1; // we will update nextSoonestTimeoutTime below
+    var timedOutCallbacks = [];
+
+    // iterate once to find timed out callbacks and find nextSoonestTimeoutTime
+    var currentCallbackConfig = headOfPendingCallbacksLinkedList;
+    while (currentCallbackConfig !== null) {
+      var _timeoutTime = currentCallbackConfig.timeoutTime;
+      if (_timeoutTime !== -1 && _timeoutTime <= currentTime) {
+        // it has timed out!
+        timedOutCallbacks.push(currentCallbackConfig);
+      } else {
+        if (_timeoutTime !== -1 && (updatedNextSoonestTimeoutTime === -1 || _timeoutTime < updatedNextSoonestTimeoutTime)) {
+          updatedNextSoonestTimeoutTime = _timeoutTime;
+        }
+      }
+      currentCallbackConfig = currentCallbackConfig.next;
+    }
+
+    if (timedOutCallbacks.length > 0) {
+      frameDeadlineObject.didTimeout = true;
+      for (var i = 0, len = timedOutCallbacks.length; i < len; i++) {
+        callUnsafely(timedOutCallbacks[i], frameDeadlineObject);
+      }
+    }
+
+    // NOTE: we intentionally wait to update the nextSoonestTimeoutTime until
+    // after successfully calling any timed out callbacks.
+    nextSoonestTimeoutTime = updatedNextSoonestTimeoutTime;
   };
 
   // We use the postMessage trick to defer idle work until after the repaint.
@@ -27015,40 +26939,29 @@ if (typeof window === 'undefined') {
     if (event.source !== window || event.data !== messageKey) {
       return;
     }
-
     isIdleScheduled = false;
 
-    var currentTime = exports.unstable_now();
-
-    var didTimeout = false;
-    if (frameDeadline - currentTime <= 0) {
-      // There's no time left in this idle period. Check if the callback has
-      // a timeout and whether it's been exceeded.
-      if (timeoutTime !== -1 && timeoutTime <= currentTime) {
-        // Exceeded the timeout. Invoke the callback even though there's no
-        // time left.
-        didTimeout = true;
-      } else {
-        // No timeout.
-        if (!isAnimationFrameScheduled) {
-          // Schedule another animation callback so we retry later.
-          isAnimationFrameScheduled = true;
-          requestAnimationFrameWithTimeout(animationTick);
-        }
-        // Exit without invoking the callback.
-        return;
-      }
+    if (headOfPendingCallbacksLinkedList === null) {
+      return;
     }
 
-    timeoutTime = -1;
-    var callback = scheduledCallback;
-    scheduledCallback = null;
-    if (callback !== null) {
-      isPerformingIdleWork = true;
-      try {
-        callback(didTimeout);
-      } finally {
-        isPerformingIdleWork = false;
+    // First call anything which has timed out, until we have caught up.
+    callTimedOutCallbacks();
+
+    var currentTime = exports.unstable_now();
+    // Next, as long as we have idle time, try calling more callbacks.
+    while (frameDeadline - currentTime > 0 && headOfPendingCallbacksLinkedList !== null) {
+      var latestCallbackConfig = headOfPendingCallbacksLinkedList;
+      frameDeadlineObject.didTimeout = false;
+      // callUnsafely will remove it from the head of the linked list
+      callUnsafely(latestCallbackConfig, frameDeadlineObject);
+      currentTime = exports.unstable_now();
+    }
+    if (headOfPendingCallbacksLinkedList !== null) {
+      if (!isAnimationFrameScheduled) {
+        // Schedule another animation callback so we retry later.
+        isAnimationFrameScheduled = true;
+        scheduleAnimationFrameWithFallbackSupport(animationTick);
       }
     }
   };
@@ -27083,32 +26996,111 @@ if (typeof window === 'undefined') {
     }
   };
 
-  requestCallback = function (callback, absoluteTimeout) {
-    scheduledCallback = callback;
-    timeoutTime = absoluteTimeout;
-    if (isPerformingIdleWork) {
-      // If we're already performing idle work, an error must have been thrown.
-      // Don't wait for the next frame. Continue working ASAP, in a new event.
-      window.postMessage(messageKey, '*');
-    } else if (!isAnimationFrameScheduled) {
+  exports.unstable_scheduleWork = function (callback, options) /* CallbackConfigType */{
+    var timeoutTime = -1;
+    if (options != null && typeof options.timeout === 'number') {
+      timeoutTime = exports.unstable_now() + options.timeout;
+    }
+    if (nextSoonestTimeoutTime === -1 || timeoutTime !== -1 && timeoutTime < nextSoonestTimeoutTime) {
+      nextSoonestTimeoutTime = timeoutTime;
+    }
+
+    var scheduledCallbackConfig = {
+      scheduledCallback: callback,
+      timeoutTime: timeoutTime,
+      prev: null,
+      next: null
+    };
+    if (headOfPendingCallbacksLinkedList === null) {
+      // Make this callback the head and tail of our list
+      headOfPendingCallbacksLinkedList = scheduledCallbackConfig;
+      tailOfPendingCallbacksLinkedList = scheduledCallbackConfig;
+    } else {
+      // Add latest callback as the new tail of the list
+      scheduledCallbackConfig.prev = tailOfPendingCallbacksLinkedList;
+      // renaming for clarity
+      var oldTailOfPendingCallbacksLinkedList = tailOfPendingCallbacksLinkedList;
+      if (oldTailOfPendingCallbacksLinkedList !== null) {
+        oldTailOfPendingCallbacksLinkedList.next = scheduledCallbackConfig;
+      }
+      tailOfPendingCallbacksLinkedList = scheduledCallbackConfig;
+    }
+
+    if (!isAnimationFrameScheduled) {
       // If rAF didn't already schedule one, we need to schedule a frame.
       // TODO: If this rAF doesn't materialize because the browser throttles, we
-      // might want to still have setTimeout trigger rIC as a backup to ensure
+      // might want to still have setTimeout trigger scheduleWork as a backup to ensure
       // that we keep performing work.
       isAnimationFrameScheduled = true;
-      requestAnimationFrameWithTimeout(animationTick);
+      scheduleAnimationFrameWithFallbackSupport(animationTick);
+    }
+    return scheduledCallbackConfig;
+  };
+
+  exports.unstable_cancelScheduledWork = function (callbackConfig /* CallbackConfigType */
+  ) {
+    if (callbackConfig.prev === null && headOfPendingCallbacksLinkedList !== callbackConfig) {
+      // this callbackConfig has already been cancelled.
+      // cancelScheduledWork should be idempotent, a no-op after first call.
+      return;
+    }
+
+    /**
+     * There are four possible cases:
+     * - Head/nodeToRemove/Tail -> null
+     *   In this case we set Head and Tail to null.
+     * - Head -> ... middle nodes... -> Tail/nodeToRemove
+     *   In this case we point the middle.next to null and put middle as the new
+     *   Tail.
+     * - Head/nodeToRemove -> ...middle nodes... -> Tail
+     *   In this case we point the middle.prev at null and move the Head to
+     *   middle.
+     * - Head -> ... ?some nodes ... -> nodeToRemove -> ... ?some nodes ... -> Tail
+     *   In this case we point the Head.next to the Tail and the Tail.prev to
+     *   the Head.
+     */
+    var next = callbackConfig.next;
+    var prev = callbackConfig.prev;
+    callbackConfig.next = null;
+    callbackConfig.prev = null;
+    if (next !== null) {
+      // we have a next
+
+      if (prev !== null) {
+        // we have a prev
+
+        // callbackConfig is somewhere in the middle of a list of 3 or more nodes.
+        prev.next = next;
+        next.prev = prev;
+        return;
+      } else {
+        // there is a next but not a previous one;
+        // callbackConfig is the head of a list of 2 or more other nodes.
+        next.prev = null;
+        headOfPendingCallbacksLinkedList = next;
+        return;
+      }
+    } else {
+      // there is no next callback config; this must the tail of the list
+
+      if (prev !== null) {
+        // we have a prev
+
+        // callbackConfig is the tail of a list of 2 or more other nodes.
+        prev.next = null;
+        tailOfPendingCallbacksLinkedList = prev;
+        return;
+      } else {
+        // there is no previous callback config;
+        // callbackConfig is the only thing in the linked list,
+        // so both head and tail point to it.
+        headOfPendingCallbacksLinkedList = null;
+        tailOfPendingCallbacksLinkedList = null;
+        return;
+      }
     }
   };
-
-  cancelCallback = function () {
-    scheduledCallback = null;
-    isIdleScheduled = false;
-    timeoutTime = -1;
-  };
 }
-
-exports.unstable_scheduleWork = unstable_scheduleWork;
-exports.unstable_cancelScheduledWork = unstable_cancelScheduledWork;
   })();
 }
 
@@ -27132,10 +27124,10 @@ if (false) {} else {
 
 /***/ }),
 
-/***/ "./node_modules/schedule/tracing.js":
-/*!******************************************!*\
-  !*** ./node_modules/schedule/tracing.js ***!
-  \******************************************/
+/***/ "./node_modules/schedule/tracking.js":
+/*!*******************************************!*\
+  !*** ./node_modules/schedule/tracking.js ***!
+  \*******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -27143,7 +27135,7 @@ if (false) {} else {
 
 
 if (false) {} else {
-  module.exports = __webpack_require__(/*! ./cjs/schedule-tracing.development.js */ "./node_modules/schedule/cjs/schedule-tracing.development.js");
+  module.exports = __webpack_require__(/*! ./cjs/schedule-tracking.development.js */ "./node_modules/schedule/cjs/schedule-tracking.development.js");
 }
 
 

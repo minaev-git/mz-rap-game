@@ -1,18 +1,32 @@
+import type { RootState } from "./index";
+
 export const SET_CURSOR = "playback/SET_CURSOR";
 
-const initialState = {
+export type PlaybackState = {|
+    +timestamp: number | null,
+    +cursor: number | null,
+|};
+
+const initialState: PlaybackState = {
     timestamp: null,
     cursor: null,
 };
 
-export function setCursor(value) {
+type SetCursorAction = {|
+    +type: typeof SET_CURSOR,
+    +payload: number | null,
+|}
+
+export function setCursor(value: number | null): SetCursorAction {
     return {
         type: SET_CURSOR,
         payload: value,
     };
 }
 
-export function playbackReducer(state = initialState, action) {
+type PlaybackAction = SetCursorAction;
+
+export function playbackReducer(state: PlaybackState = initialState, action: PlaybackAction) {
     switch (action.type) {
         case SET_CURSOR:
             return {
@@ -25,6 +39,6 @@ export function playbackReducer(state = initialState, action) {
     }
 }
 
-export function selectState(rootState) {
+export function selectState(rootState: RootState): PlaybackState {
     return rootState.playback;
 }

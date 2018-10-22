@@ -3,13 +3,15 @@ import { Progress } from "../Progress/ProgressBar";
 
 import * as styles from "./News.css";
 
-export class News extends React.Component {
-    constructor(props) {
-        super(props);
+type NewsProps = {|
+    +id: string,
+    +link: string,
+    +text: string,
+    +progress: number,
+    +onClick: (string) => void,
+|}
 
-        this.onClick = this.onClick.bind(this);
-    }
-
+export class News extends React.Component<NewsProps> {
     render() {
         const { link, text, progress } = this.props;
         return (
@@ -26,8 +28,9 @@ export class News extends React.Component {
         );
     }
 
-    onClick(event) {
-        if (event.target.tagName !== "A") {
+    onClick = (event: MouseEvent) => {
+        const target = event.target;
+        if (!(target instanceof window.HTMLAnchorElement)) {
             this.props.onClick(this.props.id);
         }
     }

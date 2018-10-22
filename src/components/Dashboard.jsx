@@ -6,11 +6,21 @@ import { NewsContainer } from "./News/NewsContainer";
 import { Player } from "./Player/Player";
 import { selectState as selectPlayback } from "../ducks/playback";
 import { LOOP_DURATION_SEC } from "../consts";
+import type { Category } from "../types";
+import type { RootState } from "../ducks";
 
 import * as styles from "./Dashboard.css";
 
-export class DashboardComponent extends React.Component {
-    constructor(props) {
+type DashboardComponentProps = {|
+    +categories: $Call<typeof selectCategories, RootState>,
+    +playback: $Call<typeof selectPlayback, RootState>,
+|}
+type DashboardComponentState = {|
+    +playbackPercent: number,
+|}
+export class DashboardComponent extends React.Component<DashboardComponentProps, DashboardComponentState> {
+    percentUpdateTimer: IntervalID | null;
+    constructor(props: DashboardComponentProps) {
         super(props);
 
         this.percentUpdateTimer = null;
@@ -34,7 +44,7 @@ export class DashboardComponent extends React.Component {
         );
     }
 
-    renderLoopCategory(category) {
+    renderLoopCategory(category: Category) {
         const { id, name, color } = category;
         const { playbackPercent } = this.state;
         return (
@@ -44,15 +54,16 @@ export class DashboardComponent extends React.Component {
                 title={name}
                 color={color}
                 playbackPercent={playbackPercent}
-                onClick={this.onClick}
             />
         );
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: DashboardComponentProps) {
         if (prevProps.playback.timestamp !== this.props.playback.timestamp) {
             this.setPercent(0);
-            clearInterval(this.percentUpdateTimer);
+            if (this.percentUpdateTimer !== null) {
+                clearInterval(this.percentUpdateTimer);
+            }
             if (this.props.playback.timestamp !== null) {
                 this.percentUpdateTimer = setInterval(() => {
                     this.setPercent();
@@ -62,23 +73,30 @@ export class DashboardComponent extends React.Component {
     }
 
     componentWillUnmount() {
-        clearInterval(this.percentUpdateTimer);
+        if (this.percentUpdateTimer !== null) {
+            clearInterval(this.percentUpdateTimer);
+        }
     }
 
-    setPercent(percent) {
-        const playbackPercent = percent !== undefined ?
-            percent :
-            Math.min(
-                (Date.now() - this.props.playback.timestamp) / 1000 / LOOP_DURATION_SEC,
+    setPercent(percent?: number) {
+        if (percent !== undefined) {
+            this.setState({
+                playbackPercent: percent,
+            });
+        } else {
+            const playbackPercent = Math.min((
+                Date.now() - (this.props.playback.timestamp !== null ? this.props.playback.timestamp : 0))
+                   / 1000 / LOOP_DURATION_SEC,
                 1,
             );
-        this.setState({
-            playbackPercent,
-        });
+            this.setState({
+                playbackPercent,
+            });
+        }
     }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState) => {
     return {
         categories: selectCategories(state),
         playback: selectPlayback(state),

@@ -1,17 +1,20 @@
 import * as React from "react";
-import * as cn from "classnames";
+import cn from "classnames";
 import { Progress } from "../Progress/ProgressCircle";
 import { LoopState } from "../../consts";
+import type { LoopStateEnum } from "../../types";
 
 import * as styles from "./Loop.css";
 
-export class Loop extends React.Component {
-    constructor(props) {
-        super(props);
+type LoopProps = {|
+    +name: string,
+    +state: LoopStateEnum,
+    +playbackPercent: number,
+    +id: string,
+    +onClick: (string) => void
+|}
 
-        this.onClick = this.onClick.bind(this);
-    }
-
+export class Loop extends React.Component<LoopProps> {
     render() {
         const { name, state, playbackPercent } = this.props;
         return (
@@ -38,7 +41,7 @@ export class Loop extends React.Component {
         );
     }
 
-    onClick() {
+    onClick = () => {
         this.props.onClick(this.props.id);
     }
 }

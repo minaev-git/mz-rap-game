@@ -1,6 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import * as cn from "classnames";
+import cn from "classnames";
 import {
     selectIsRecording,
     setIsRecording,
@@ -14,11 +14,36 @@ import { generateShareHash } from "./utils";
 import { selectAllLoaded, setLoopState, stopAllLoops } from "../../ducks/loops";
 import { selectState as selectPlayback } from "../../ducks/playback";
 import { LoopState } from "../../consts";
+import type { RootState } from "../../ducks";
 
 import * as styles from "./Player.css";
 
-export class PlayerComponent extends React.Component {
-    constructor(props) {
+type PlayerComponentStateProps = {|
+    +allLoaded: $Call<typeof selectAllLoaded, RootState>,
+    +isRecording: $Call<typeof selectIsRecording, RootState>,
+    +isPlayingRecord: $Call<typeof selectIsPlayingRecord, RootState>,
+    +startTimestamp: $Call<typeof selectStartTimestamp, RootState>,
+    +recordLoops: $Call<typeof selectRecordLoops, RootState>,
+    +recordNews: $Call<typeof selectRecordNews, RootState>,
+    +playback: $Call<typeof selectPlayback, RootState>,
+|}
+
+type PlayerComponentDispatchProps = {|
+    +setIsRecording: typeof setIsRecording,
+    +setIsPlayingRecord: typeof setIsPlayingRecord,
+    +stopAllLoops: typeof stopAllLoops,
+    +setLoopState: typeof setLoopState,
+|}
+
+type PlayerComponentProps = PlayerComponentStateProps & PlayerComponentDispatchProps;
+
+type PlayerComponentState = {|
+    shareLink: string,
+|}
+
+export class PlayerComponent extends React.Component<PlayerComponentProps, PlayerComponentState> {
+    refLink: { current: null | HTMLInputElement };
+    constructor(props: PlayerComponentProps) {
         super(props);
 
         this.state = {
@@ -26,13 +51,9 @@ export class PlayerComponent extends React.Component {
         };
 
         this.refLink = React.createRef();
-
-        this.onClickRecord = this.onClickRecord.bind(this);
-        this.onClickPlay = this.onClickPlay.bind(this);
-        this.onClickLink = this.onClickLink.bind(this);
     }
 
-    shouldComponentUpdate(prevProps) {
+    shouldComponentUpdate(prevProps: PlayerComponentProps) {
         return prevProps.allLoaded !== this.props.allLoaded ||
             prevProps.isRecording !== this.props.isRecording ||
             prevProps.recordLoops !== this.props.recordLoops ||
@@ -98,7 +119,7 @@ export class PlayerComponent extends React.Component {
         );
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: PlayerComponentProps) {
         const { allLoaded, isPlayingRecord, playback, recordLoops } = this.props;
 
         // auto play on load
@@ -120,18 +141,18 @@ export class PlayerComponent extends React.Component {
         }
     }
 
-    onClickRecord() {
+    onClickRecord = () => {
         if (this.props.isRecording) {
-            this.props.setIsRecording(null);
+            this.props.setIsRecording(false);
             this.setState({
                 shareLink: this.generateLink(),
             });
         } else {
-            this.props.setIsRecording(Date.now());
+            this.props.setIsRecording(true);
         }
-    }
+    };
 
-    onClickPlay() {
+    onClickPlay = () => {
         this.props.stopAllLoops();
         if (this.props.isPlayingRecord) {
             this.props.setIsPlayingRecord(false);
@@ -139,11 +160,14 @@ export class PlayerComponent extends React.Component {
             this.props.setIsPlayingRecord(true);
             this.setNextLoops(0);
         }
-    }
+    };
 
-    onClickLink() {
-        this.refLink.current.focus();
-        this.refLink.current.select();
+    onClickLink = () => {
+        const input = this.refLink.current;
+        if (input !== null) {
+            input.focus();
+            input.select();
+        }
         try {
             const successful = document.execCommand("copy");
             if (!successful) {
@@ -152,9 +176,9 @@ export class PlayerComponent extends React.Component {
         } catch (err) {
             console.error("Не скопировалось :(");
         }
-    }
+    };
 
-    setNextLoops(cursor) {
+    setNextLoops(cursor: number) {
         const { recordLoops } = this.props;
         const newLoopStates = [];
         // schedule stop
@@ -191,7 +215,7 @@ export class PlayerComponent extends React.Component {
     }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootState): PlayerComponentStateProps => ({
     allLoaded: selectAllLoaded(state),
     isRecording: selectIsRecording(state),
     isPlayingRecord: selectIsPlayingRecord(state),
@@ -201,7 +225,7 @@ const mapStateToProps = state => ({
     playback: selectPlayback(state),
 });
 
-const mapDispatchToProps = {
+const mapDispatchToProps: PlayerComponentDispatchProps = {
     setIsRecording,
     setIsPlayingRecord,
     stopAllLoops,

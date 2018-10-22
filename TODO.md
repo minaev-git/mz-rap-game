@@ -32,15 +32,11 @@
 - [ ] Add FX  
 
 ## Tech debt
-- [ ] Create repo  
+- [x] Create repo  
 - [ ] Add README  
 - [x] Remove console.logs
 - [x] Remove comments
 - [ ] Sound sprites    
-
-## Use cases
-
-1. -> Play loops -> play news
-1. -> Play loops -> auto play news (play button for news)
-1. -> Play shared track
-1. -> Record -> share link
+- [x] Add Flow
+- [ ] <s>Add Emotion</s>
+- [ ] Production build

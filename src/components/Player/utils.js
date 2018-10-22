@@ -1,4 +1,5 @@
 import { MAXIMUM_RECORD_TURNS, MAXIMUM_NEWS_READ } from "../../consts";
+import type { RecordLoops, RecordNews } from "../../ducks/record";
 
 const loopIdRegExp = /^[a-z]+\d*$/;
 const addSeparator = "*";
@@ -8,15 +9,17 @@ const chunksSeparator = "_";
 const loopsNewsSeparator = "!";
 const loopChunkRegExp = /^(\d+)(?:\*([^-]+))?(?:-(.+))?$/;
 
-export function validateLoopId(id) {
+export function validateLoopId(id: string) {
     if (!loopIdRegExp.test(id)) {
         throw `Invalid loop id ${id}. Loop id should satisfy ${loopIdRegExp.toString()} regular expression.`;
     }
 }
 
-export function generateShareHash({ startTimestamp, loops, news }) {
+export function generateShareHash(
+    { startTimestamp, loops, news }: {| startTimestamp: number | null, loops: RecordLoops[], news: RecordNews[] |}
+) {
     const loopChunks = [];
-    let previousLoops = [];
+    let previousLoops: RecordLoops = [];
     for (let i = 0; i < loops.length; i++) {
         const addedLoops = [];
         const removedLoops = [];
@@ -58,12 +61,12 @@ export function generateShareHash({ startTimestamp, loops, news }) {
     return btoa(hash);
 }
 
-export function generatePlayList(hash) {
+export function generatePlayList(hash: string): {| loops: RecordLoops[], news: RecordNews[] |} | null {
     try {
         const decodedHash = atob(hash);
         const [loopPart, newsPart] = decodedHash.split(loopsNewsSeparator);
         const loopChunks = loopPart.split(chunksSeparator);
-        const loops = [];
+        const loops: RecordLoops[] = [];
         let loopsCursor = 0;
         for (const loopChunk of loopChunks) {
             const match = loopChunk.match(loopChunkRegExp);
@@ -87,7 +90,7 @@ export function generatePlayList(hash) {
                 break;
             }
         }
-        const news = [];
+        const news: RecordNews[] = [];
         const newsChunks = newsPart.split(chunksSeparator);
         for (let i = 0; i < newsChunks.length && i < MAXIMUM_NEWS_READ; i++) {
             let [timestamp, id] = newsChunks[i].split(addSeparator);
@@ -106,7 +109,7 @@ export function generatePlayList(hash) {
     }
 }
 
-export function randomInRange(min, max) {
+export function randomInRange(min: number, max: number): number {
     return min + Math.random() * (max - min);
 }
 

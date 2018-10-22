@@ -1,6 +1,24 @@
 import { LoopState } from "./consts";
+import type { Category, Loop, News } from "./types";
 
-export const categories = [
+import beat01 from "../assets/beat_01.mp3";
+import beat02 from "../assets/beat_02.mp3";
+import beat03 from "../assets/beat_03.mp3";
+import beat04 from "../assets/beat_04.mp3";
+import hihats01 from "../assets/hihats_01.mp3";
+import hihats02 from "../assets/hihats_02.mp3";
+import hihats03 from "../assets/hihats_03.mp3";
+import hihats04 from "../assets/hihats_04.mp3";
+import bass01 from "../assets/bass_01.mp3";
+import bass02 from "../assets/bass_02.mp3";
+import bass03 from "../assets/bass_03.mp3";
+import bass04 from "../assets/bass_04.mp3";
+import tune01 from "../assets/tune_01.mp3";
+import tune02 from "../assets/tune_02.mp3";
+import tune03 from "../assets/tune_03.mp3";
+import tune04 from "../assets/tune_04.mp3";
+
+export const categories: Category[] = [
     {
         id: "beats",
         name: "Бит",
@@ -23,122 +41,122 @@ export const categories = [
     },
 ];
 
-export const loops = [
+export const loops: Loop[] = [
     {
         id: "bt1",
         categoryId: "beats",
         groupId: "beats",
-        src: require("../assets/beat_01.mp3"),
+        src: beat01,
         state: LoopState.Loading,
     },
     {
         id: "bt2",
         categoryId: "beats",
         groupId: "beats",
-        src: require("../assets/beat_02.mp3"),
+        src: beat02,
         state: LoopState.Loading,
     },
     {
         id: "bt3",
         categoryId: "beats",
         groupId: "beats",
-        src: require("../assets/beat_03.mp3"),
+        src: beat03,
         state: LoopState.Loading,
     },
     {
         id: "bt4",
         categoryId: "beats",
         groupId: "beats",
-        src: require("../assets/beat_04.mp3"),
+        src: beat04,
         state: LoopState.Loading,
     },
     {
         id: "h1",
         categoryId: "hihats",
         groupId: "hihats",
-        src: require("../assets/hihats_01.mp3"),
+        src: hihats01,
         state: LoopState.Loading,
     },
     {
         id: "h2",
         categoryId: "hihats",
         groupId: "hihats",
-        src: require("../assets/hihats_02.mp3"),
+        src: hihats02,
         state: LoopState.Loading,
     },
     {
         id: "h3",
         categoryId: "hihats",
         groupId: "hihats",
-        src: require("../assets/hihats_03.mp3"),
+        src: hihats03,
         state: LoopState.Loading,
     },
     {
         id: "h4",
         categoryId: "hihats",
         groupId: "hihats",
-        src: require("../assets/hihats_04.mp3"),
+        src: hihats04,
         state: LoopState.Loading,
     },
     {
         id: "b1",
         categoryId: "bass",
         groupId: "bass",
-        src: require("../assets/bass_01.mp3"),
+        src: bass01,
         state: LoopState.Loading,
     },
     {
         id: "b2",
         categoryId: "bass",
         groupId: "bass",
-        src: require("../assets/bass_02.mp3"),
+        src: bass02,
         state: LoopState.Loading,
     },
     {
         id: "b3",
         categoryId: "bass",
         groupId: "bass",
-        src: require("../assets/bass_03.mp3"),
+        src: bass03,
         state: LoopState.Loading,
     },
     {
         id: "b4",
         categoryId: "bass",
         groupId: "bass",
-        src: require("../assets/bass_04.mp3"),
+        src: bass04,
         state: LoopState.Loading,
     },
     {
         id: "t1",
         categoryId: "tune",
         groupId: "tune",
-        src: require("../assets/tune_01.mp3"),
+        src: tune01,
         state: LoopState.Loading,
     },
     {
         id: "t2",
         categoryId: "tune",
         groupId: "tune",
-        src: require("../assets/tune_02.mp3"),
+        src: tune02,
         state: LoopState.Loading,
     },
     {
         id: "t3",
         categoryId: "tune",
         groupId: "tune",
-        src: require("../assets/tune_03.mp3"),
+        src: tune03,
         state: LoopState.Loading,
     },
     {
         id: "t4",
         categoryId: "tune",
         groupId: "tune",
-        src: require("../assets/tune_04.mp3"),
+        src: tune04,
         state: LoopState.Loading,
     },
 ];
 
-export const news = [
+export const news: News[] = [
     // {
     //     id: "0",
     //     link: "https://zona.media/news/2018/09/17/urlashov",

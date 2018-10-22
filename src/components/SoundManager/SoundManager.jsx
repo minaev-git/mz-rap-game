@@ -1,6 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { Howl } from "howler";
+import { Howl, Howler } from "howler";
 import { selectState as selectLoops, setLoops, setLoopState } from "../../ducks/loops";
 import {
     addLoops as addLoopsToRecord,
@@ -9,12 +9,33 @@ import {
 } from "../../ducks/record";
 import { selectState as selectPlayback, setCursor } from "../../ducks/playback";
 import { LOOP_DURATION_SEC, LoopState } from "../../consts";
+import type { RootState } from "../../ducks";
 
 const checkLoopEndTimeMs = 40;
 const scheduleAheadTimeSec = 0.01;
 
-export class SoundManagerComponent extends React.Component {
-    constructor(props) {
+type SoundManagerComponentStateProps = {|
+    +loops: $Call<typeof selectLoops, RootState>,
+    +isRecording: $Call<typeof selectIsRecording, RootState>,
+    +playback: $Call<typeof selectPlayback, RootState>,
+|}
+
+type SoundManagerComponentDispatchProps = {|
+    +setLoops: typeof setLoops,
+    +setLoopState: typeof setLoopState,
+    +setCursor: typeof setCursor,
+    +addLoopsToRecord: typeof addLoopsToRecord,
+    +setIsPlayingRecord: typeof setIsPlayingRecord,
+|}
+
+type SoundManagerComponentProps = SoundManagerComponentStateProps & SoundManagerComponentDispatchProps;
+
+export class SoundManagerComponent extends React.Component<SoundManagerComponentProps> {
+    ctxCurrentTime: number | null;
+    isPlaying: boolean;
+    howls: { [string]: Class<Howl> };
+    checkInterval: IntervalID | void;
+    constructor(props: SoundManagerComponentProps) {
         super(props);
 
         this.ctxCurrentTime = null;
@@ -30,11 +51,9 @@ export class SoundManagerComponent extends React.Component {
                 },
             });
         }
-
-        this.checkLoopEnd = this.checkLoopEnd.bind(this);
     }
 
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate(nextProps: SoundManagerComponentProps) {
         return nextProps.loops !== this.props.loops;
     }
 
@@ -49,7 +68,7 @@ export class SoundManagerComponent extends React.Component {
         return null;
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: SoundManagerComponentProps) {
         if (this.props.loops !== prevProps.loops) {
             if (this.isPlaying) {
                 const hasActiveLoops = this.props.loops.some(loop =>
@@ -138,14 +157,14 @@ export class SoundManagerComponent extends React.Component {
         }
     }
 
-    checkLoopEnd() {
+    checkLoopEnd: () => void = () => {
         if (this.ctxCurrentTime + LOOP_DURATION_SEC < Howler.ctx.currentTime + scheduleAheadTimeSec) {
             this.playNextLoops();
         }
-    }
+    };
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: RootState): SoundManagerComponentStateProps => {
     return {
         loops: selectLoops(state),
         isRecording: selectIsRecording(state),
@@ -153,7 +172,7 @@ const mapStateToProps = state => {
     };
 };
 
-const mapDispatchToProps = {
+const mapDispatchToProps: SoundManagerComponentDispatchProps = {
     setLoops,
     setLoopState,
     setCursor,
