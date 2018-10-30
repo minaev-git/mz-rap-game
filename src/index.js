@@ -36,20 +36,26 @@ if (recordHash !== null) {
     }
 }
 
-const rootNode = document.createElement("div");
-rootNode.className = styles.rootCOntainer;
-const body = document.body;
-if (body !== null) {
+let rootNode = document.getElementById("rap_root");
+
+if(!rootNode) {
+  rootNode = document.createElement("div");
+  rootNode.className = styles.rootContainer;
+  const body = document.body;
+  if (body !== null) {
     body.appendChild(rootNode);
+  }
 }
 
 const renderApp = (Component) => {
+  if (rootNode) {
     render(
-        <Provider store={store}>
-            <Component />
-        </Provider>,
-        rootNode,
+      <Provider store={store}>
+        <Component/>
+      </Provider>,
+      rootNode
     );
+  }
 };
 
 renderApp(App);
